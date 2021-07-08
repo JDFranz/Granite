@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\src\main.cpp" />
+    <ClCompile Include="..\src\MapTools.cpp" />
+    <ClCompile Include="..\src\GraniteBot.cpp" />
+    <ClCompile Include="..\src\Tools.cpp" />
+    <ClCompile Include="..\src\DistanceMap.cpp" />
+    <ClCompile Include="EconomyManager.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\src\Grid.hpp" />
+    <ClInclude Include="..\src\MapTools.h" />
+    <ClInclude Include="..\src\GraniteBot.h" />
+    <ClInclude Include="..\src\Tools.h" />
+    <ClInclude Include="..\src\Grid2D.hpp" />
+    <ClInclude Include="..\src\StarDraft.h" />
+    <ClInclude Include="..\src\StarDraftMap.hpp" />
+    <ClInclude Include="..\src\BaseBorderFinder.hpp" />
+    <ClInclude Include="..\src\DistanceMap.h" />
+    <ClInclude Include="EconomyManager.h" />
+  </ItemGroup>
+</Project>

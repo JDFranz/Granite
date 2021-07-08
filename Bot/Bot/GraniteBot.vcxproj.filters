@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\src\DistanceMap.cpp" />
+    <ClCompile Include="..\src\main.cpp" />
+    <ClCompile Include="..\src\MapTools.cpp" />
+    <ClCompile Include="..\src\Tools.cpp" />
+    <ClCompile Include="..\src\GraniteBot.cpp">
+      <Filter>GraniteBot</Filter>
+    </ClCompile>
+    <ClCompile Include="GlobalManager.cpp">
+      <Filter>GraniteBot\GlobalManager</Filter>
+    </ClCompile>
+    <ClCompile Include="EconomyManager.cpp">
+      <Filter>GraniteBot\GlobalManager\Economy</Filter>
+    </ClCompile>
+    <ClCompile Include="BaseManager.cpp" />
+    <ClCompile Include="ScoutManager.cpp">
+      <Filter>GraniteBot\GlobalManager</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\src\BaseBorderFinder.hpp" />
+    <ClInclude Include="..\src\DistanceMap.h" />
+    <ClInclude Include="..\src\Grid.hpp" />
+    <ClInclude Include="..\src\Grid2D.hpp" />
+    <ClInclude Include="..\src\MapTools.h" />
+    <ClInclude Include="..\src\StarDraft.h" />
+    <ClInclude Include="..\src\StarDraftMap.hpp" />
+    <ClInclude Include="..\src\Tools.h" />
+    <ClInclude Include="..\src\GraniteBot.h">
+      <Filter>GraniteBot</Filter>
+    </ClInclude>
+    <ClInclude Include="GlobalManager.h">
+      <Filter>GraniteBot\GlobalManager</Filter>
+    </ClInclude>
+    <ClInclude Include="EconomyManager.h">
+      <Filter>GraniteBot\GlobalManager\Economy</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseManager.h" />
+    <ClInclude Include="ScoutManager.h">
+      <Filter>GraniteBot\GlobalManager</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="GraniteBot">
+      <UniqueIdentifier>{37c7d586-169d-4779-a6b9-d0efc786399e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GraniteBot\GlobalManager">
+      <UniqueIdentifier>{8086593d-bf98-49e2-8265-060364e59028}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GraniteBot\GlobalManager\Economy">
+      <UniqueIdentifier>{afee77ff-1893-49cc-a2ea-ca61531170f0}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
