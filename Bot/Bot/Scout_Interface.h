@@ -1,25 +1,29 @@
 #include "Unit_Mapping.h"
 #include <list>
+#include "BWAPI.h"
 using namespace std;
+
+class Scouting;
 
 class Scout_Interface
 {
+    friend class Scouting;
         public:
                 Scout_Interface();
-                Scout_Interface(list<BWAPI::Point> path, Unit_Mapping* map, bool temp);
+                Scout_Interface(list<BWAPI::Position> path, Unit_Mapping* map, bool temp);
                 ~Scout_Interface();
                 bool discovered(Unit_Mapping * m_map);
                 bool at_final_dest();
                 bool move(Unit_Mapping* map);
-                void set_dest_path(list<BWAPI::Point> dest_path);
-                list<BWAPI::Point> get_dest_path();
+                void set_dest_path(list<BWAPI::Position> dest_path);
+                list<BWAPI::Position> get_dest_path();
                 BWAPI::Unit get_scout();
                 void scout_killed(Unit_Mapping* map);
                 bool Scout_Interface::is_temp();
 
         private:
-				list<BWAPI::Point> m_path;
-                list<BWAPI::Point>::iterator m_iterator;
+				list<BWAPI::Position> m_path;
+                list<BWAPI::Position>::iterator m_iterator;
                 BWAPI::Unit m_scout;
                 bool m_temp;
 

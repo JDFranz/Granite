@@ -23,7 +23,10 @@
     <ClInclude Include="BaseManager.h" />
     <ClInclude Include="EconomyManager.h" />
     <ClInclude Include="GlobalManager.h" />
+    <ClInclude Include="Scouting.h" />
     <ClInclude Include="ScoutManager.h" />
+    <ClInclude Include="Scout_Interface.h" />
+    <ClInclude Include="Unit_Mapping.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\DistanceMap.cpp" />
@@ -34,7 +37,10 @@
     <ClCompile Include="BaseManager.cpp" />
     <ClCompile Include="EconomyManager.cpp" />
     <ClCompile Include="GlobalManager.cpp" />
+    <ClCompile Include="Scouting.cpp" />
     <ClCompile Include="ScoutManager.cpp" />
+    <ClCompile Include="Scout_Interface.cpp" />
+    <ClCompile Include="Unit_Mapping.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectName>Granite</ProjectName>

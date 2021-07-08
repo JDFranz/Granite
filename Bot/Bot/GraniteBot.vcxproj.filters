@@ -16,7 +16,16 @@
     </ClCompile>
     <ClCompile Include="BaseManager.cpp" />
     <ClCompile Include="ScoutManager.cpp">
-      <Filter>GraniteBot\GlobalManager</Filter>
+      <Filter>GraniteBot\GlobalManager\Scouting</Filter>
+    </ClCompile>
+    <ClCompile Include="Scout_Interface.cpp">
+      <Filter>GraniteBot\GlobalManager\Scouting</Filter>
+    </ClCompile>
+    <ClCompile Include="Scouting.cpp">
+      <Filter>GraniteBot\GlobalManager\Scouting</Filter>
+    </ClCompile>
+    <ClCompile Include="Unit_Mapping.cpp">
+      <Filter>GraniteBot\GlobalManager\Scouting</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -39,7 +48,16 @@
     </ClInclude>
     <ClInclude Include="BaseManager.h" />
     <ClInclude Include="ScoutManager.h">
-      <Filter>GraniteBot\GlobalManager</Filter>
+      <Filter>GraniteBot\GlobalManager\Scouting</Filter>
+    </ClInclude>
+    <ClInclude Include="Scout_Interface.h">
+      <Filter>GraniteBot\GlobalManager\Scouting</Filter>
+    </ClInclude>
+    <ClInclude Include="Scouting.h">
+      <Filter>GraniteBot\GlobalManager\Scouting</Filter>
+    </ClInclude>
+    <ClInclude Include="Unit_Mapping.h">
+      <Filter>GraniteBot\GlobalManager\Scouting</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -51,6 +69,9 @@
     </Filter>
     <Filter Include="GraniteBot\GlobalManager\Economy">
       <UniqueIdentifier>{afee77ff-1893-49cc-a2ea-ca61531170f0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GraniteBot\GlobalManager\Scouting">
+      <UniqueIdentifier>{0d793206-c56e-4e65-aade-0bbfaa17e8c3}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

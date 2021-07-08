@@ -1,9 +1,8 @@
 #include "Scout_Interface.h"
 
 
-Scout_Interface::Scout_Interface(list<BWAPI::Point> path, Unit_Mapping * map, bool temp)
-        :
-                m_temp(temp)
+Scout_Interface::Scout_Interface(list<BWAPI::Position> path, Unit_Mapping * map, bool temp):
+m_temp(temp)
 {
         set_dest_path(path);
         find_scout(map);
@@ -30,13 +29,13 @@ bool Scout_Interface::discovered(Unit_Mapping * m_map)
         float desired_range = 12345; // range of building or creep discovered from
                                  // scouting destination that qualifies an
                                  // enemy base at that location.
-
-        for (auto &u : BWAPI::Broodwar->getUnitsInRectangle(0,0,99999,99999, BWAPI::Filter::IsEnemy, BWAPI::Filter::IsBuilding))
-                if (distance(u->getPosition(),m_path.back()) <= desired_range)
-                        return true;
-        "iterate over tiles in desired_range of m_path.last_element"
-                if (BWAPI::Broodwar->hasCreep(tile))
-                        return true;
+        //TODO
+        // for (auto &u : BWAPI::Broodwar->getUnitsInRectangle(0,0,99999,99999, BWAPI::Filter::IsEnemy, BWAPI::Filter::IsBuilding))
+        //         if (distance(u->getPosition(),m_path.back()) <= desired_range)
+        //                 return true;
+        // "iterate over tiles in desired_range of m_path.last_element"
+        //         if (BWAPI::Broodwar->hasCreep(u))
+        //                 return true;
         return false;
 
 }//..
@@ -63,19 +62,20 @@ bool Scout_Interface::move(Unit_Mapping * map)
          *          m_scout             -> Right click the destination
          */ 
 {
-        if (!m_scout)
-                scout_killed(map);
-
-        if (at_final_dest())
-                return;
-        if (at_destination())
-                "m_iterator++";
-
-        smartMove(m_scout, (*m_iterator));
+        // if (!m_scout) TODO
+        //         scout_killed(map);
+        //
+        // if (at_final_dest())
+        //         return;
+        // if (at_destination())
+        //         "m_iterator++";
+        //
+        // SmartMove(m_scout, (*m_iterator));
+    return false;
 }//..
 
 // Set Destination Path../
-void Scout_Interface::set_dest_path(list<BWAPI::Point> path)
+void Scout_Interface::set_dest_path(list<BWAPI::Position> path)
         //set private class variable for scout's path
 {
         m_path = path;
@@ -84,7 +84,7 @@ void Scout_Interface::set_dest_path(list<BWAPI::Point> path)
 }//..
 
 // Get Destination Path../
-list<BWAPI::Point> Scout_Interface::get_dest_path()
+list<BWAPI::Position> Scout_Interface::get_dest_path()
         //get private class variable for scout's path
 {
         return m_path;
@@ -117,7 +117,7 @@ void Scout_Interface::find_scout(Unit_Mapping * map)
         float min_dist = 99999;
         BWAPI::Unit scout = nullptr;
 
-        for (auto &u : BWAPI::Broodwar->getUnitsInRectangle(0,0,99999,99999, Filter::IsWorker && Filter::IsOwned))
+        /*for (auto &u : BWAPI::Broodwar->getUnitsInRectangle(0,0,99999,99999, BWAPI::Filter::IsWorker && BWAPI::Filter::IsOwned))
         {
                 if (map->get_task(u) == BUILD || map->get_task(u) == HARVEST)
                         continue;
@@ -128,7 +128,8 @@ void Scout_Interface::find_scout(Unit_Mapping * map)
                         min_dist = dist;
                         scout = u;
                 }
-        }
+        }*/
+		//TODO
 
         if (!scout)
                 return;
@@ -136,10 +137,10 @@ void Scout_Interface::find_scout(Unit_Mapping * map)
         m_scout = scout;
         //TODO map->set_task(scout) == SCOUT; 
 
-        "Find the element of m_path that scout is closest to";
-        "set iterator to that element";
-        }
-}//..
+        //"Find the element of m_path that scout is closest to";
+        //"set iterator to that element";
+        
+}
 
 // At Destination?../
 bool Scout_Interface::at_destination()
@@ -151,15 +152,17 @@ bool Scout_Interface::at_destination()
          * idea - if scout is within sight range of dest return true
          */
 {
-        if (in_range((*m_iterator)))
-                return true;
-        return false;
+        // if (in_range((*m_iterator)))
+        //         return true;
+        // return false;
+	//TODO
+    return true;
 }//..
 
 // In Range../
 bool Scout_Interface::in_range()
 {
-        float desired_range = ?; // Distance from a discovered building to
+        float desired_range = 1000; // Distance from a discovered building to
                                  // the destination scout point where we can
                                  // accurately say that the enemy has a base
                                  // at that location
@@ -167,7 +170,7 @@ bool Scout_Interface::in_range()
         if (!m_scout)
                 return false;
 
-        if (distance(m_scout->getPosition(), m_path[m_iterator]) <= desired_range)
+        if (distance(m_scout->getPosition(), (*m_iterator)) <= desired_range)
                 return true;
         return false;
 }//..
@@ -175,8 +178,9 @@ bool Scout_Interface::in_range()
 // Distance../
 float Scout_Interface::distance(BWAPI::Position, BWAPI::Position)
 {
-        "calculate distance between {x1, y1} and {x2, y2}"
-}//..
+       //TODO "calculate distance between {x1, y1} and {x2, y2}"
+    return 1;
+}
 
 // Smart Move../
 void Scout_Interface::SmartMove(BWAPI::Unit attacker, const BWAPI::Position & targetPosition)
@@ -193,7 +197,7 @@ void Scout_Interface::SmartMove(BWAPI::Unit attacker, const BWAPI::Position & ta
     }
 
     // if we have issued a command to this unit already this frame, ignore this one
-    if (attacker->getLastCommandFrame() >= BWAPI::Broodwar->getFrameCount() || attacker->isAttackFrame())
+    if ((attacker->getLastCommandFrame() >= BWAPI::Broodwar->getFrameCount()) || attacker->isAttackFrame())
     {
         return;
     }
@@ -210,11 +214,12 @@ void Scout_Interface::SmartMove(BWAPI::Unit attacker, const BWAPI::Position & ta
     // if nothing prevents it, attack the target
     attacker->move(targetPosition);
 
-    if (Config::Debug::DrawUnitTargetInfo)
-    {
-        BWAPI::Broodwar->drawCircleMap(attacker->getPosition(), dotRadius, BWAPI::Colors::White, true);
-        BWAPI::Broodwar->drawCircleMap(targetPosition, dotRadius, BWAPI::Colors::White, true);
-        BWAPI::Broodwar->drawLineMap(attacker->getPosition(), targetPosition, BWAPI::Colors::White);
-    }
-}//..
+    // if (Config::Debug::DrawUnitTargetInfo)
+    // {
+    //     BWAPI::Broodwar->drawCircleMap(attacker->getPosition(), dotRadius, BWAPI::Colors::White, true);
+    //     BWAPI::Broodwar->drawCircleMap(targetPosition, dotRadius, BWAPI::Colors::White, true);
+    //     BWAPI::Broodwar->drawLineMap(attacker->getPosition(), targetPosition, BWAPI::Colors::White);
+    // }TODO 
+}
+
 
