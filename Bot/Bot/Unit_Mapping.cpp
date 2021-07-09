@@ -2,6 +2,10 @@
 #include "Unit_Mapping.h"
 #include <fstream>
 #include <string>
+#include <BWAPI/AIModule.h>
+#include <BWAPI/AIModule.h>
+#include <BWAPI/AIModule.h>
+#include <BWAPI/AIModule.h>
 
 using namespace BWAPI;
 using namespace Filter;
@@ -412,6 +416,20 @@ int Unit_Mapping::e_warping_count(BWAPI::UnitType u)// ../
 {
         return e_warp_count[u];
 }//..
+std::list<BWAPI::Position> Unit_Mapping::e_get_potential_startpositions()
+{
+    std::list<BWAPI::Position> positions();
+	
+    for (auto tile : BWAPI::Broodwar->getStartLocations())//iterating through enemy start locations
+    {
+        BWAPI::Position pos(tile);
+    	if (!(tile == BWAPI::Broodwar->self()->getStartLocation()));//
+    	{
+            positions().push_back(pos);
+    	}
+    }
+    return positions();
+}
 
 // Enemy ID mapping
 // Mapping enemy unit ID ../

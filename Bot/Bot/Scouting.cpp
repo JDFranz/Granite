@@ -2,13 +2,13 @@
 
 //Public
 // Scout for enemy start location../
-void Scouting::scout_start_loc(Unit_Mapping* map)
+void Scouting::scout_start_loc(Unit_Mapping* map) //DONE
         /*
          * update - enemy_loc     -> if 2 player map... set coords and return.
          *
          *        or
          *
-         *          m_scout_paths -> Initialize with starting locations
+         *          m_scout_total_paths -> Initialize with starting locations
          *                           (these are single coordinate paths)
          *
          *          m_temps       -> Initialize for each path
@@ -17,18 +17,17 @@ void Scouting::scout_start_loc(Unit_Mapping* map)
          *
          */
 {
-        if ( "two_player_map" )
+        if (size(map->e_get_potential_startpositions())==1) //
         {
-                parse_start_loc(map);
-                return;
+             e_iscovered_enemy = true;
+             map->add_enemy_base(*(map->e_get_potential_startpositions().begin()));
         }
 
-        for (auto &u : BWAPI::Broodwar->getStartLocations())
+        for (auto &u : map->e_get_potential_startpositions())
         {
-                if ("u == BWAPI::Broodwar->self()->getStartLocation()") continue;
                         
-                m_scout_paths.push_back(BWAPI::Position(u));
-                m_scout_temps.push_back(BWAPI::Position(u)); //u is a tile position 
+                m_scout_total_paths.push_back(u);
+                m_scout_remaining_path.push_back(u); 
         }
 }//..
 
@@ -46,12 +45,12 @@ void Scouting::update_scout_interface(Unit_Mapping* map)
          */
 {
         // return if there is nothing to scout for
-        if (m_scout_paths.empty() && m_scouts.empty())
+        if (m_scout_total_paths.empty() && m_scouts.empty())
                 return;
 
         // add a scout if no one is scouting
         if (m_scouts.empty())
-                add_scout();
+                add_scout(map);
 
         // update scouts if they discovered enemy or arrived at destination
         for (auto &u : m_scouts)
@@ -84,27 +83,6 @@ void Scouting::replace_if_scout(BWAPI::Unit unit, Unit_Mapping * map)
                         u.scout_killed(map);
 }//..
 
-//Private
-// Parse Start Location../
-void Scouting::parse_start_loc(Unit_Mapping* map)
-        /*
-         * updates - m_map      -> adds enemy base to m_map
-         * 
-         * idea - element of 2 item list that is not our start location
-         */
-{
-        BWAPI::TilePosition::list starts;
-        BWAPI::TilePosition our_start;
-        BWAPI::TilePosition enemy_location;
-
-        starts = BWAPI::Broodwar->getStartLocations();
-        our_start = BWAPI::Broodwar->self()->getStartLocation();
-        
-     //TODO   enemy_location = "element in starts that is not our_start";
-
-        map->add_enemy_base(BWAPI::Position(enemy_location));
-} //..
-
 // On Arrived../
 void Scouting::on_arrived(Scout_Interface scout, Unit_Mapping* map)
         /*
@@ -113,8 +91,8 @@ void Scouting::on_arrived(Scout_Interface scout, Unit_Mapping* map)
          *                                destination paths
          */
 {
-        update_scout_path(&scout);
-        add_scout();
+        update_scout_path(&scout,map);
+        add_scout(map);
 }//..
 
 // On Discovery../
@@ -126,7 +104,7 @@ void Scouting::on_discovery(Scout_Interface * scout, Unit_Mapping* map)
          *                                none
          *          m_map              -> add enemy base location
          * 
-         *          idea - Check m_scout_paths for more paths
+         *          idea - Check m_scout_total_paths for more paths
          *                      if one exists assign it to the scout
          *                      else remove scout from list and set it to IDLE
          *                 if another path exists add a new
@@ -134,20 +112,21 @@ void Scouting::on_discovery(Scout_Interface * scout, Unit_Mapping* map)
          */
 {
         // record discovery
-        //TODO map->add_enemy_base(scout);
+        map->add_enemy_base(scout->get_scout());
+        e_iscovered_enemy = true;
 
         // remove temporary paths
-        //for (auto &u : m_scout_paths)
-        for (auto it_path=m_scout_paths.begin(); it_path !=m_scout_paths.end(); it_path = it_path)
+        //for (auto &u : m_scout_total_paths)
+        for (auto it_path=m_scout_total_paths.begin(); it_path !=m_scout_total_paths.end(); it_path = it_path)
         {
-            for (auto it_temp = m_scout_temps.begin(); it_temp != m_scout_temps.end(); it_temp = it_temp)
-                if ((*it_path) == (*it_temp)) it_path = m_scout_paths.erase(it_path);
+            for (auto it_temp = m_scout_remaining_path.begin(); it_temp != m_scout_remaining_path.end(); it_temp = it_temp)
+                if ((*it_path) == (*it_temp)) it_path = m_scout_total_paths.erase(it_path);
                 else it_path++;
         	
         }
-        m_scout_temps.clear();
+        m_scout_remaining_path.clear();
 
-        update_scout_path(scout);
+        update_scout_path(scout,map);
 
         // halt temporary scouts
         for (auto &u : m_scouts)
@@ -160,62 +139,63 @@ void Scouting::on_discovery(Scout_Interface * scout, Unit_Mapping* map)
             }
             else it_scouts++;
         }
-}//..
+}
 
-// Update scout path../
-void Scouting::update_scout_path( Scout_Interface * scout )
+void Scouting::update_scout_path( Scout_Interface * scout ,Unit_Mapping* map)
 {
-    list<BWAPI::Position> element;
-        bool temp;
+        /* @CALL: When a Scouting_unit arrives at a way point of it's path
+         *
+         * @Brief:
+         * are there segments of paths left for scouting?
+         * ->YES:
+         * find the closes path for the scout from the remainder of scoutpaths
+         * mark the first waypoint as done by popping it off ( the scout is at this waypoint)
+         * set the remaining path to be the scout's path 
+         * 
+         * ->NO: (we have scouted this route)
+         * clear and delete the scout form our scoutingunitlist and make IDLE
+         */
 
-        /*if ( !m_scout_paths.empty() ) TODO
+        if ( !m_scout_remaining_path.empty() )  
         {
-                element = closest_path(scout->get_scout());
-                temp = in_scout_temps(element);
-
-                scout->set_dest_path(elemebt);
-                m_scout_paths.remove(element);
-        } else {
+				list<BWAPI::Position>  path = closest_path(scout->get_scout());
+                scout->set_dest_path(path);
+                m_scout_remaining_path.pop_back();
+        } else { //there are no more paths to scout
                 map->set_task(scout->get_scout(), IDLE);
-                m_scouts.remove(scout);
+                m_scouts.erase((std::find(m_scouts.begin(), m_scouts.end(), scout)));
                 delete(scout);
-        }*/
-}//..
-
-// Add Scout../
-void Scouting::add_scout()
+        }
+}
+void Scouting::add_scout(Unit_Mapping* map )
 {
-
-		/*BWAPI::Position element;
-        bool temp;
-
-        // add another scout if more paths exist
-        if ( !m_scout_paths.empty() )
+	/* if there is a remaining to scout:
+	 * let Scoutinterface create a new interface. Scoutinterface will:
+	 * -> find a unit near a path and make that unit a scout(handled by Scoutinterface)
+	 * -> set the path for the unit to be a remaining path to scout
+	 */
+        if ( !m_scout_total_paths.empty() )
         {
-                element = //m_scout_paths.next_element;
-                temp = in_scout_temps(element);
+                m_scouts.push_back( Scout_Interface(m_scout_remaining_path, map));
+        }
+}
 
-                m_scouts.add(new Scout_Interface(element, map, temp));
-                m_scout_paths.remove(element);
-        }*/
-}//..
 
-// In m_scout_temps?../
-bool Scouting::in_scout_temps(BWAPI::Position element)
+bool Scouting::in_remaining_path(BWAPI::Position position)
 {
-        if ((std::find(m_scout_temps.begin(), m_scout_temps.end(), element) != m_scout_temps.end()))//(m_scout_temps.contains(element))
+        if ((std::find(m_scout_remaining_path.begin(), m_scout_remaining_path.end(), position) != m_scout_remaining_path.end()))//(m_scout_remaining_path.contains(element))
                 return true;
         return false;
-}//..
+}
          
-// Closest Path../
+
 list<BWAPI::Position> Scouting::closest_path(BWAPI::Unit scout)
-{
-        BWAPI::Position scout_pos;
+{   
+        BWAPI::Position scout_pos = scout->getPosition();
+		float dist=scout_pos.getDistance((m_scout_remaining_path.back()));
+		
+        return m_scout_total_paths;//TODO list of lists
+}
 
-        scout_pos = scout->getPosition();
 
-       //TODO "return m_scout_path that has closest last_element to scout_pos"
-        return list<BWAPI::Position>();
-}//..
 

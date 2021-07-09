@@ -1,77 +1,109 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="..\src\DistanceMap.cpp" />
     <ClCompile Include="..\src\main.cpp" />
-    <ClCompile Include="..\src\MapTools.cpp" />
-    <ClCompile Include="..\src\Tools.cpp" />
     <ClCompile Include="..\src\GraniteBot.cpp">
       <Filter>GraniteBot</Filter>
     </ClCompile>
     <ClCompile Include="GlobalManager.cpp">
-      <Filter>GraniteBot\GlobalManager</Filter>
+      <Filter>GlobalManager</Filter>
     </ClCompile>
     <ClCompile Include="EconomyManager.cpp">
-      <Filter>GraniteBot\GlobalManager\Economy</Filter>
+      <Filter>GlobalManager\Economy</Filter>
     </ClCompile>
-    <ClCompile Include="BaseManager.cpp" />
     <ClCompile Include="ScoutManager.cpp">
-      <Filter>GraniteBot\GlobalManager\Scouting</Filter>
+      <Filter>GlobalManager\Scouting</Filter>
     </ClCompile>
     <ClCompile Include="Scout_Interface.cpp">
-      <Filter>GraniteBot\GlobalManager\Scouting</Filter>
+      <Filter>GlobalManager\Scouting</Filter>
     </ClCompile>
     <ClCompile Include="Scouting.cpp">
-      <Filter>GraniteBot\GlobalManager\Scouting</Filter>
+      <Filter>GlobalManager\Scouting</Filter>
     </ClCompile>
     <ClCompile Include="Unit_Mapping.cpp">
-      <Filter>GraniteBot\GlobalManager\Scouting</Filter>
+      <Filter>GlobalManager\Scouting</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\MapTools.cpp">
+      <Filter>Map&amp;Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\DistanceMap.cpp">
+      <Filter>Map&amp;Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Tools.cpp">
+      <Filter>Other</Filter>
+    </ClCompile>
+    <ClCompile Include="Mine_Interface.cpp">
+      <Filter>GlobalManager\Economy</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\BaseBorderFinder.hpp" />
-    <ClInclude Include="..\src\DistanceMap.h" />
-    <ClInclude Include="..\src\Grid.hpp" />
-    <ClInclude Include="..\src\Grid2D.hpp" />
-    <ClInclude Include="..\src\MapTools.h" />
-    <ClInclude Include="..\src\StarDraft.h" />
-    <ClInclude Include="..\src\StarDraftMap.hpp" />
-    <ClInclude Include="..\src\Tools.h" />
     <ClInclude Include="..\src\GraniteBot.h">
       <Filter>GraniteBot</Filter>
     </ClInclude>
     <ClInclude Include="GlobalManager.h">
-      <Filter>GraniteBot\GlobalManager</Filter>
+      <Filter>GlobalManager</Filter>
     </ClInclude>
     <ClInclude Include="EconomyManager.h">
-      <Filter>GraniteBot\GlobalManager\Economy</Filter>
+      <Filter>GlobalManager\Economy</Filter>
     </ClInclude>
-    <ClInclude Include="BaseManager.h" />
     <ClInclude Include="ScoutManager.h">
-      <Filter>GraniteBot\GlobalManager\Scouting</Filter>
+      <Filter>GlobalManager\Scouting</Filter>
     </ClInclude>
     <ClInclude Include="Scout_Interface.h">
-      <Filter>GraniteBot\GlobalManager\Scouting</Filter>
+      <Filter>GlobalManager\Scouting</Filter>
     </ClInclude>
     <ClInclude Include="Scouting.h">
-      <Filter>GraniteBot\GlobalManager\Scouting</Filter>
+      <Filter>GlobalManager\Scouting</Filter>
     </ClInclude>
     <ClInclude Include="Unit_Mapping.h">
-      <Filter>GraniteBot\GlobalManager\Scouting</Filter>
+      <Filter>GlobalManager\Scouting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\StarDraft.h">
+      <Filter>Map&amp;Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\StarDraftMap.hpp">
+      <Filter>Map&amp;Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\MapTools.h">
+      <Filter>Map&amp;Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\DistanceMap.h">
+      <Filter>Map&amp;Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\BaseBorderFinder.hpp">
+      <Filter>Map&amp;Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Grid.hpp">
+      <Filter>Map&amp;Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Grid2D.hpp">
+      <Filter>Map&amp;Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Tools.h">
+      <Filter>Other</Filter>
+    </ClInclude>
+    <ClInclude Include="Mine_Interface.h">
+      <Filter>GlobalManager\Economy</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="GraniteBot">
       <UniqueIdentifier>{37c7d586-169d-4779-a6b9-d0efc786399e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="GraniteBot\GlobalManager">
+    <Filter Include="GlobalManager">
       <UniqueIdentifier>{8086593d-bf98-49e2-8265-060364e59028}</UniqueIdentifier>
     </Filter>
-    <Filter Include="GraniteBot\GlobalManager\Economy">
+    <Filter Include="GlobalManager\Economy">
       <UniqueIdentifier>{afee77ff-1893-49cc-a2ea-ca61531170f0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="GraniteBot\GlobalManager\Scouting">
+    <Filter Include="GlobalManager\Scouting">
       <UniqueIdentifier>{0d793206-c56e-4e65-aade-0bbfaa17e8c3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Map&amp;Helpers">
+      <UniqueIdentifier>{5aac0e20-9de8-466d-b359-396fc989ad82}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Other">
+      <UniqueIdentifier>{022d7ca4-c9d6-45a1-a32c-684d88da795e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

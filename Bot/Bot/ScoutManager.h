@@ -1,11 +1,14 @@
 #pragma once
 #include <list>
 #include "BWAPI.h"
+#include "Scouting.h" //cant include the other circ dep
+#include "Unit_Mapping.h"
 
 using namespace std;
 
 class ScoutManager
 {
+	
 	list<BWAPI::Unit> unitlist; //units for the Manager to command
 	list<int> unit_id; //used to compare which unit was managed last frame
 	int num_required=1; //how many units this manager wants to manage
@@ -16,6 +19,7 @@ class ScoutManager
 public:
 	void clear();
 	list<BWAPI::Unit> onFrame(list<BWAPI::Unit> otherunitlist);
+	
 	void scoutEnemyBaseLocationDirectly(BWAPI::Unit scout);//directly scout enemy base
 	void ReturnToOwnBase(BWAPI::Unit scout);
 	void MoveToPerimeter(BWAPI::Unit scout, int perimeter); // move within a certain perimeter of enemy startpos.

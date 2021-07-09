@@ -20,9 +20,9 @@
     <ClInclude Include="..\src\StarDraft.h" />
     <ClInclude Include="..\src\StarDraftMap.hpp" />
     <ClInclude Include="..\src\Tools.h" />
-    <ClInclude Include="BaseManager.h" />
     <ClInclude Include="EconomyManager.h" />
     <ClInclude Include="GlobalManager.h" />
+    <ClInclude Include="Mine_Interface.h" />
     <ClInclude Include="Scouting.h" />
     <ClInclude Include="ScoutManager.h" />
     <ClInclude Include="Scout_Interface.h" />
@@ -34,9 +34,9 @@
     <ClCompile Include="..\src\MapTools.cpp" />
     <ClCompile Include="..\src\GraniteBot.cpp" />
     <ClCompile Include="..\src\Tools.cpp" />
-    <ClCompile Include="BaseManager.cpp" />
     <ClCompile Include="EconomyManager.cpp" />
     <ClCompile Include="GlobalManager.cpp" />
+    <ClCompile Include="Mine_Interface.cpp" />
     <ClCompile Include="Scouting.cpp" />
     <ClCompile Include="ScoutManager.cpp" />
     <ClCompile Include="Scout_Interface.cpp" />

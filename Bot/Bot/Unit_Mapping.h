@@ -1,5 +1,6 @@
 #pragma once
 #include <BWAPI.h>
+#include <Tools.h>
 
 enum worker_detail { MINE, HARVEST, BUILD, SCOUT, ATTACK, DEFEND, IDLE, EVADE };
 enum buildings{NEXUS=1, PYLON, GATEWAY, ASSIMILATOR, SHIELD,
@@ -27,6 +28,8 @@ class Unit_Mapping {
         int Unit_Mapping::e_total_count(BWAPI::UnitType u);
         int Unit_Mapping::e_warping_count(BWAPI::UnitType u);
         //..
+
+        std::list<BWAPI::Position> e_get_potential_startpositions();
 	bool Unit_Mapping::enemy_mapped(BWAPI::Unit u);
         void add_enemy_ID(BWAPI::Unit u);
         int get_enemy_ID(BWAPI::Unit u);

@@ -18,6 +18,7 @@ void GraniteBot::onStart()
 
     // Call MapTools OnStart
     m_mapTools.onStart();
+    gloman.onStart();
 
     //export_map();
 }
