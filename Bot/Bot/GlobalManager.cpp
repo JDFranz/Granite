@@ -1,15 +1,14 @@
 #include "GlobalManager.h"
 
-
 list<BWAPI::Unit> GlobalManager::onFrame()
 {
 	unitlist = get_units();
-	num_existing_units= unitlist.size();
-	m_scout->set_scouts(this->filter_scout());//get a scout unit into the scout class
+	num_existing_units = unitlist.size();
+	//m_scout->ad(this->filter_scout());//get a scout unit into the scout class
 	m_scout->update_scout_interface(m_map);
 	//unitlist = scoutman.onFrame(unitlist); My old scouting function
 	list<BWAPI::Unit>workers = filter_worker();
-	unitlist=ecoman.onFrame(workers);
+	unitlist = ecoman.onFrame(workers);
 	return unitlist;
 }
 
@@ -26,19 +25,18 @@ list<BWAPI::Unit> GlobalManager::filter_worker()
 			{
 				workerlist.push_back(*it);
 				it = unitlist.erase(it);
-				// delete in common manager list for return	
+				// delete in common manager list for return
 				//append own list for managment
 				num_got++;
 			}
 			else it++;
 		}
 	}
-	
+
 	list<BWAPI::Unit> notworker(unitlist);
-	
-	
-	//Adding all further workers to the workerlist 
-	for (auto it = unitlist.begin(); it!= unitlist.end(); it=it)
+
+	//Adding all further workers to the workerlist
+	for (auto it = unitlist.begin(); it != unitlist.end(); it = it)
 	{
 		if ((*it)->getType().isWorker())
 		{
@@ -54,10 +52,8 @@ list<BWAPI::Unit> GlobalManager::filter_worker()
 		worker_ids.push_back(unit->getID());
 	}
 	cout << size(scout_ids) << " working units" << endl;
-	
-	
+
 	return workerlist;
-	
 }
 
 list<BWAPI::Unit> GlobalManager::filter_scout()
@@ -77,27 +73,25 @@ list<BWAPI::Unit> GlobalManager::filter_scout()
 			{
 				scoutlist.push_back(*it);
 				it = unitlist.erase(it);
-				// delete in common manager list for return	
+				// delete in common manager list for return
 				//append own list for managment
 				num_got++;
-
-
 			}
 			else it++;
 		}
 	}
-	
+
 	for (auto it = unitlist.cbegin(); it != unitlist.cend(); it = it) //taking additional units till we have enough
 	{
 		if (num_got < num_needed_scouts)
 		{
 			scoutlist.push_back(move(*it)); //append own list for managment
-			it = unitlist.erase(it); // delete in common manager list for return	
+			it = unitlist.erase(it); // delete in common manager list for return
 			num_got++;
 		}
 		else break;
 	}
-	
+
 	scout_ids = list<int>(); //update IDs
 	for (auto unit : scoutlist)
 	{
@@ -110,12 +104,9 @@ list<BWAPI::Unit> GlobalManager::filter_scout()
 
 void GlobalManager::onStart()
 {
-	
 	m_map = new Unit_Mapping();
-	m_scout = new Scouting(); 
-	
+	m_scout = new Scouting();
 }
-
 
 list<BWAPI::Unit>  GlobalManager::get_units()
 {
