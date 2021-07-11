@@ -5,7 +5,7 @@ list<BWAPI::Unit> GlobalManager::onFrame()
 	unitlist = get_units();
 	num_existing_units = unitlist.size();
 	//m_scout->ad(this->filter_scout());//get a scout unit into the scout class
-	m_scout->update_scout_interface(m_map);
+	m_scout->onFrame(m_map);
 	//unitlist = scoutman.onFrame(unitlist); My old scouting function
 	list<BWAPI::Unit>workers = filter_worker();
 	unitlist = ecoman.onFrame(workers);

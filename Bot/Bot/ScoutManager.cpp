@@ -53,7 +53,7 @@ list<BWAPI::Unit> ScoutManager::onFrame(list<BWAPI::Unit> allunits)
 	//the return vector is the original without the scouts
 	//number of required scouts is initialized as 1
 
-	//m_scout->update_scout_interface(m_map);
+	//m_scout->onFrame(m_map);
 
 	return return_units;
 }

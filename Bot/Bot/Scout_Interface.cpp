@@ -1,15 +1,16 @@
 #include "Scout_Interface.h"
 #include <BWAPI/AIModule.h>
 
-Scout_Interface::Scout_Interface(list<BWAPI::Position> path, Unit_Mapping* map)
+Scout_Interface::Scout_Interface(vector<BWAPI::Position> path, Unit_Mapping* map)
 {
+	if (Scout_Debugging) std::cout << "Scout_Interface::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
 	set_dest_path(path);
 	find_scout(map);
 }
 
 Scout_Interface::~Scout_Interface()
-
 {
+	if (Scout_Debugging) std::cout << "Scout_Interface::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
 	if (m_scout)
 		m_scout->stop();
 }
@@ -28,6 +29,8 @@ bool Scout_Interface::discovered(Unit_Mapping* m_map)
 *
  */
 {
+	if (Scout_Debugging) std::cout << "Scout_Interface::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
+
 	float desired_range = 12345; // range of building or creep discovered from
 							 // scouting destination that qualifies an
 							 // enemy base at that location.
@@ -54,7 +57,9 @@ bool Scout_Interface::at_final_dest()
  * \return : bool check if scout can see final destination of its assigned path
  */
 {
-	if (at_destination() && (m_iterator == m_path.end()))
+	if (Scout_Debugging) std::cout << "Scout_Interface::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
+
+	if (at_destination() && ((*m_iterator) == (*m_path.end())))
 		return true;
 	return false;
 }
@@ -69,13 +74,15 @@ bool Scout_Interface::move(Unit_Mapping* map)
  * \return : bool returns true if at final dest
  */
 {
+	if (Scout_Debugging) std::cout << "Scout_Interface::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
+
 	if (!m_scout)scout_killed(map);
 	if (at_final_dest())return true;
 	if (at_destination()) m_iterator++;
 	SmartMove(m_scout, (*m_iterator));
 	return true;
 }
-void Scout_Interface::set_dest_path(list<BWAPI::Position> path)
+void Scout_Interface::set_dest_path(vector<BWAPI::Position> path)
 /**\name:set_dest_path
  * --------------------> status: debugging
  * \call : when a new scout is needed it has to have a path
@@ -84,8 +91,10 @@ void Scout_Interface::set_dest_path(list<BWAPI::Position> path)
  * \param : path the path a scout needs to complete
  */
 {
-	list<int> distances;
-	//creating a list of distances
+	if (Scout_Debugging) std::cout << "Scout_Interface::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
+
+	vector<int> distances;
+	//creating a vector of distances
 	for (auto it = path.begin(); it != path.end(); it++)
 	{
 		distances.push_back(m_scout->getDistance((*it)));
@@ -110,22 +119,29 @@ void Scout_Interface::set_dest_path(list<BWAPI::Position> path)
 			m_iterator = it;
 	}
 }
-list<BWAPI::Position> Scout_Interface::get_dest_path()
+vector<BWAPI::Position> Scout_Interface::get_dest_path()
 {
+	if (Scout_Debugging) std::cout << "Scout_Interface::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
+
 	return m_path;
 }
+
 BWAPI::Unit Scout_Interface::get_scout()
 {
+	if (Scout_Debugging) std::cout << "Scout_Interface::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
 	return m_scout;
 }
 void Scout_Interface::scout_killed(Unit_Mapping* map)
 // Finds new scout
 {
+	if (Scout_Debugging) std::cout << "Scout_Interface::scout_killed" << std::endl;
+	//for debugging purposes change in "Debugger.hpp"
 	find_scout(map);
 }
 
 void Scout_Interface::find_scout(Unit_Mapping* map)
 {
+	if (Scout_Debugging) std::cout << "Scout_Interface::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
 	float dist;
 	float min_dist = 99999;
 	BWAPI::Unit scout = nullptr; // setting the scout to nullptr to assume dead till found
@@ -168,6 +184,7 @@ bool Scout_Interface::at_destination()
  * \return : bool
  */
 {
+	if (Scout_Debugging) std::cout << "Scout_Interface::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
 	if (waypoint_in_sight())
 		return true;
 	return false;
@@ -181,6 +198,7 @@ bool Scout_Interface::waypoint_in_sight()
  * \return : bool whether insight
  */
 {
+	if (Scout_Debugging) std::cout << "Scout_Interface::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
 	if (!m_scout)
 		return false;
 	// sightrange of a protoss probe is 8 tiles so 8*32= 256 pixels? ASK
@@ -199,6 +217,7 @@ float Scout_Interface::distance(BWAPI::Position pos1, BWAPI::Position pos2)
  * \return : float the distance
  */
 {
+	if (Scout_Debugging) std::cout << "Scout_Interface::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
 	return pos1.getDistance(pos2);
 }
 
@@ -212,6 +231,7 @@ void Scout_Interface::SmartMove(BWAPI::Unit attacker, const BWAPI::Position& tar
  * \param : targetPosition
  */
 {
+	if (Scout_Debugging) std::cout << "Scout_Interface::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
 	if (!attacker || !targetPosition.isValid())
 	{
 		return;

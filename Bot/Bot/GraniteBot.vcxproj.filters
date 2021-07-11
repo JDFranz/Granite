@@ -5,9 +5,6 @@
     <ClCompile Include="..\src\GraniteBot.cpp">
       <Filter>GraniteBot</Filter>
     </ClCompile>
-    <ClCompile Include="GlobalManager.cpp">
-      <Filter>GlobalManager</Filter>
-    </ClCompile>
     <ClCompile Include="EconomyManager.cpp">
       <Filter>GlobalManager\Economy</Filter>
     </ClCompile>
@@ -39,9 +36,6 @@
   <ItemGroup>
     <ClInclude Include="..\src\GraniteBot.h">
       <Filter>GraniteBot</Filter>
-    </ClInclude>
-    <ClInclude Include="GlobalManager.h">
-      <Filter>GlobalManager</Filter>
     </ClInclude>
     <ClInclude Include="EconomyManager.h">
       <Filter>GlobalManager\Economy</Filter>

@@ -1,22 +1,21 @@
 #pragma once
 #include "Tools.h"
-#include <list>
+#include <vector>
 
 using namespace std;
-
-class EconomyManager 
+const bool Economy_Debugging = true;
+class EconomyManager
 {
-	list<BWAPI::Unit> unitlist; //units for the Manager to command
-	list<int> unit_id; //used to compare which unit was managed last frame
+	vector<BWAPI::Unit> unitvector; //units for the Manager to command
+	vector<int> unit_id; //used to compare which unit was managed last frame
 	int num_required; //how many units this manager wants to manage
 
-	list<BWAPI::Unit> posses_units(list<BWAPI::Unit> unitlist);
+	vector<BWAPI::Unit> posses_units(vector<BWAPI::Unit> unitvector);
 
 public:
 	void clear();
-	list<BWAPI::Unit> onFrame(list<BWAPI::Unit> otherunitlist) ;
+	vector<BWAPI::Unit> onFrame(vector<BWAPI::Unit> otherunitvector);
 	void sendIdleWorkersToMinerals();
 	void trainAdditionalWorkers();
 	void buildAdditionalSupply();
 };
-
