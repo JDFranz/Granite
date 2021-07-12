@@ -1,21 +1,21 @@
 #include "Scout_Interface.h"
 #include <BWAPI/AIModule.h>
 
-Scout_Interface::Scout_Interface(vector<BWAPI::Position> path, Unit_Mapping* map)
+Scout_Interface::Scout_Interface(vector<BWAPI::Position> path, Unit_Mapping* map) :
+	m_path_togo(path)
 {
 	if (Scout_Debugging) std::cout << "Scout_Interface::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
-	set_dest_path(path);
 	find_scout(map);
+	set_dest_path_stupidly(path);
 }
 
 Scout_Interface::~Scout_Interface()
 {
 	if (Scout_Debugging) std::cout << "Scout_Interface::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
-	if (m_scout)
-		m_scout->stop();
+	//if (m_scout) m_scout->stop();
 }
 
-bool Scout_Interface::discovered(Unit_Mapping* m_map)
+bool Scout_Interface::is_e_discovered(Unit_Mapping* m_map)
 /**\name:discovered
  * --------------------> status: debugging
 *\call : on every update
@@ -39,9 +39,9 @@ bool Scout_Interface::discovered(Unit_Mapping* m_map)
 	for (BWAPI::Unit u : BWAPI::Broodwar->getUnitsInRectangle(0, 0, 99999, 99999, (BWAPI::Filter::IsEnemy&&
 		BWAPI::Filter::IsBuilding)))
 	{
-		if (distance(u->getPosition(), m_path.back()) <= desired_range)
+		if (distance(u->getPosition(), m_path_togo.back()) <= desired_range)
 			return true;
-		//"iterate over tiles in desired_range of m_path.last_element"
+		//"iterate over tiles in desired_range of m_path_togo.last_element"
 
 		if (BWAPI::Broodwar->hasCreep(u->getTilePosition())) //if there is creep then there must be a nearby tumor and we have discovered the enemy
 			return true;
@@ -59,8 +59,8 @@ bool Scout_Interface::at_final_dest()
 {
 	if (Scout_Debugging) std::cout << "Scout_Interface::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
 
-	if (at_destination() && ((*m_iterator) == (*m_path.end())))
-		return true;
+	if (at_destination() && (m_path_togo.empty())) return true;
+
 	return false;
 }
 
@@ -78,21 +78,49 @@ bool Scout_Interface::move(Unit_Mapping* map)
 
 	if (!m_scout)scout_killed(map);
 	if (at_final_dest())return true;
-	if (at_destination()) m_iterator++;
-	SmartMove(m_scout, (*m_iterator));
+	if (at_destination()) m_path_togo.erase(m_path_togo.begin());
+	if (!m_path_togo.empty())SmartMove(m_scout, (*m_path_togo.begin()));
+
 	return true;
 }
-void Scout_Interface::set_dest_path(vector<BWAPI::Position> path)
+void Scout_Interface::set_dest_path_stupidly(vector<BWAPI::Position> path)
+{
+	if (Scout_Debugging) std::cout << "Scout_Interface::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
+	if (Scout_Debugging)
+	{
+		if (path.empty()) cout << "<== Path is empty" << endl;
+		for (auto waypt : path)
+		{
+			std::cout << waypt.x << " " << waypt.y << "-->";
+			if (waypt == BWAPI::Position(BWAPI::Broodwar->self()->getStartLocation()))
+			{
+				cout << "<== THIS IS G STARTLOC" << endl;
+			}
+		}
+		std::cout << std::endl;
+	}
+	if (path.empty()) delete this;
+	m_path_togo = path;
+}
+
+void Scout_Interface::set_dest_path_smartly(vector<BWAPI::Position> path) //why? I think it is too complicated
 /**\name:set_dest_path
  * --------------------> status: debugging
  * \call : when a new scout is needed it has to have a path
  * \brief : find the element of path, which is closest to the new scout, let him start scouting there by setting the iterator to that element.
- * \detail :
+ * \detail : !!! you can't use this in a constructor before pre assigning path and iterator
  * \param : path the path a scout needs to complete
  */
 {
 	if (Scout_Debugging) std::cout << "Scout_Interface::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
-
+	if (Scout_Debugging)
+	{
+		for (auto waypt : path)
+		{
+			std::cout << waypt.x << " " << waypt.y << "-->";
+		}
+		std::cout << std::endl;
+	}
 	vector<int> distances;
 	//creating a vector of distances
 	for (auto it = path.begin(); it != path.end(); it++)
@@ -116,14 +144,14 @@ void Scout_Interface::set_dest_path(vector<BWAPI::Position> path)
 	for (auto it = path.begin(); it != path.end(); it++)
 	{
 		if (mindist == (m_scout->getDistance((*it))))
-			m_iterator = it;
+			m_path_togo.begin() = it;
 	}
 }
 vector<BWAPI::Position> Scout_Interface::get_dest_path()
 {
 	if (Scout_Debugging) std::cout << "Scout_Interface::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
 
-	return m_path;
+	return m_path_togo;
 }
 
 BWAPI::Unit Scout_Interface::get_scout()
@@ -140,24 +168,31 @@ void Scout_Interface::scout_killed(Unit_Mapping* map)
 }
 
 void Scout_Interface::find_scout(Unit_Mapping* map)
+/**\name:find_scout
+ * --------------------> status: Debugging
+ * \call : everytime a new scout is needed
+ * \brief : Scans through all the workers and makes an IDLE worker a Scout
+ * \detail :looks for the Unit with the closest position to the iterator(position) makes that one the scout
+ * \param : map
+ */
 {
 	if (Scout_Debugging) std::cout << "Scout_Interface::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
-	float dist;
+
 	float min_dist = 99999;
 	BWAPI::Unit scout = nullptr; // setting the scout to nullptr to assume dead till found
 
 	for (auto& u : BWAPI::Broodwar->getUnitsInRectangle(0, 0, 99999, 99999, BWAPI::Filter::IsOwned))//BWAPI::Filter::IsWorker &&
 	{
-		if (!u->getType().isWorker()) continue; //check if unit is worker
+		if (!(u->getType().isWorker())) continue; //check if unit is worker
 
 		if (map->get_task(u) == BUILD || map->get_task(u) == HARVEST) //that means every other worker has to be sorted beforehand
 			continue;
 
-		//"Find the element of m_path that scout is closest to";
+		//"Find the element of m_path_togo that scout is closest to";
 		//"set iterator to that element";
-		for (auto it = m_path.begin(); it != m_path.end(); it = it)
+		for (auto it = m_path_togo.begin(); it != m_path_togo.end(); it++)
 		{
-			dist = distance(u->getPosition(), (*it));
+			float dist = distance(u->getPosition(), (*it));
 			if (dist < min_dist) // if the unit is within a certain proximity of the scouting path end then this must be the scouting unit
 			{
 				//found the scout
@@ -167,11 +202,20 @@ void Scout_Interface::find_scout(Unit_Mapping* map)
 		}
 	}
 
-	if (!scout)
-		return; // if there is no scout near any of the path positions
+	if (!m_scout)
+	{
+		if (Scout_Debugging) std::cout << "--->Scout not found" << std::endl;
+		return;
+	}
+
+	if (m_scout)
+	{
+		if (Scout_Debugging) std::cout << "--->Scout is found" << std::endl;
+		// if there is no scout near any of the path positions
 				// for later shouldn't we find a new one?
 
-	map->set_task(m_scout, SCOUT); // set the task for this unit as Scouting
+		map->set_task(m_scout, SCOUT); // set the task for this unit as Scouting
+	}
 }
 
 // At Destination?../
@@ -198,11 +242,20 @@ bool Scout_Interface::waypoint_in_sight()
  * \return : bool whether insight
  */
 {
-	if (Scout_Debugging) std::cout << "Scout_Interface::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
-	if (!m_scout)
-		return false;
+	if (Scout_Debugging)
+	{
+		std::cout << "Scout_Interface::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
+		std::cout << "	current waypoint: " << (*m_path_togo.begin()).x << " " << (*m_path_togo.begin()).y << std::endl;
+		std::cout << "	Scout pos: " << (m_scout->getPosition()).x << " " << (m_scout->getPosition()).y << std::endl;
+	}
+
+	if (!m_scout) return false;
 	// sightrange of a protoss probe is 8 tiles so 8*32= 256 pixels? ASK
-	if (m_scout->getDistance((*m_iterator)) <= 256)return true;
+	if (m_scout->getDistance((*m_path_togo.begin())) <= 256)
+	{
+		if (Scout_Debugging) std::cout << "can see waypoint" << std::endl;
+		return true;
+	}
 	return false;
 }
 

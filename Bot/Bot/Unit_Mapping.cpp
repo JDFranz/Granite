@@ -9,14 +9,22 @@ using namespace Filter;
 // Constructor../
 Unit_Mapping::Unit_Mapping()
 {
+	if (Unit_Mapping_Debugging) std::cout << "Unit_Mapping::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
+
 	set_start_count();
 	//set_build_list();
 }//..
+Unit_Mapping::~Unit_Mapping()
+{
+	if (Unit_Mapping_Debugging) std::cout << "Unit_Mapping::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
+}
 
 // Initializers
 // Set Count ../
 void Unit_Mapping::set_start_count()
 {
+	if (Unit_Mapping_Debugging) std::cout << "Unit_Mapping::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
+
 	/*
 	 * update - map         -> unit counts are set for match start
 	 *
@@ -46,6 +54,8 @@ void Unit_Mapping::set_build_list()
  * idea - read and parse building data created with stardraft
  */
 {
+	if (Unit_Mapping_Debugging) std::cout << "Unit_Mapping::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
+
 	std::string data;
 	std::ifstream file("data/build.txt");
 
@@ -73,6 +83,8 @@ void Unit_Mapping::parse_build_data(std::string data)
  * idea - tokenize csv data and add it to vector
  */
 {
+	if (Unit_Mapping_Debugging) std::cout << "Unit_Mapping::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
+
 	int type, x, y;
 	std::vector<std::string> tokens;
 	tokens = parse_csv(data);
@@ -95,6 +107,8 @@ void Unit_Mapping::parse_build_data(std::string data)
 // Get Type../
 int Unit_Mapping::get_type(std::string data)
 {
+	if (Unit_Mapping_Debugging) std::cout << "Unit_Mapping::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
+
 	/*
 	 * input - data         -> String containing building type
 	 * output - bldg type   -> Enum value of that building type
@@ -140,6 +154,8 @@ int Unit_Mapping::get_type(std::string data)
 // Get Coordinate../
 int Unit_Mapping::get_coord(std::string data)
 {
+	if (Unit_Mapping_Debugging) std::cout << "Unit_Mapping::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
+
 	/*
 	 * input - data         -> data in string form
 	 * output - data        -> data in integer form
@@ -151,6 +167,8 @@ int Unit_Mapping::get_coord(std::string data)
 // Get CSV Tokens../
 std::vector<std::string> Unit_Mapping::parse_csv(std::string line)
 {
+	if (Unit_Mapping_Debugging) std::cout << "Unit_Mapping::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
+
 	/*
 	 * input - line         -> String of csv data
 	 * output - vec         -> Vector containing tokenized strings
@@ -184,6 +202,8 @@ std::vector<std::string> Unit_Mapping::parse_csv(std::string line)
 
 std::vector<std::string> Unit_Mapping::reverse_tokens(std::vector<char*> vec)
 {
+	if (Unit_Mapping_Debugging) std::cout << "Unit_Mapping::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
+
 	std::vector<std::string> ret;
 
 	while (!vec.empty())
@@ -198,6 +218,8 @@ std::vector<std::string> Unit_Mapping::reverse_tokens(std::vector<char*> vec)
 // Get Build Type../
 BWAPI::UnitType Unit_Mapping::get_build_type()
 {
+	if (Unit_Mapping_Debugging) std::cout << "Unit_Mapping::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
+
 	/*
 	 * output - type        -> The building type of first unit in vector
 	 * idea - enum conversion
@@ -243,6 +265,8 @@ BWAPI::UnitType Unit_Mapping::get_build_type()
 // Get Building Location../
 BWAPI::Position Unit_Mapping::get_build_loc()
 {
+	if (Unit_Mapping_Debugging) std::cout << "Unit_Mapping::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
+
 	/*
 	 * output - loc         -> Position of first unit in building vector
 	 */
@@ -252,6 +276,8 @@ BWAPI::Position Unit_Mapping::get_build_loc()
 // Check if Build List is empty../
 bool Unit_Mapping::bl_empty()
 {
+	if (Unit_Mapping_Debugging) std::cout << "Unit_Mapping::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
+
 	/*
 	 * output - bool        -> True if the vector is empty
 	 *                      -> False otherwise
@@ -262,6 +288,8 @@ bool Unit_Mapping::bl_empty()
 // Remove entry from Build List../
 void Unit_Mapping::remove_build()
 {
+	if (Unit_Mapping_Debugging) std::cout << "Unit_Mapping::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
+
 	/*
 	 * update - m_building          -> Removes first element
 	 */
@@ -287,6 +315,8 @@ void Unit_Mapping::add_to_count(BWAPI::Unit u)
  *
  */
 {
+	if (Unit_Mapping_Debugging) std::cout << "Unit_Mapping::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
+
 	if (!u->getPlayer()->isEnemy(Broodwar->self()))
 	{
 		if (u->isCompleted())
@@ -332,6 +362,8 @@ void Unit_Mapping::remove_from_count(BWAPI::Unit u, bool completed)
  *        necessary
  */
 {
+	if (Unit_Mapping_Debugging) std::cout << "Unit_Mapping::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
+
 	if (!u->getPlayer()->isEnemy(Broodwar->self()))
 	{//self
 		if (!completed)
@@ -351,10 +383,7 @@ void Unit_Mapping::remove_from_count(BWAPI::Unit u, bool completed)
 			del_enemy_ID(u);
 		}
 	}
-}//..
-
-// Mapping Enemy Bases
-// Add Enemy Base../
+}
 void Unit_Mapping::add_enemy_base(BWAPI::Unit u)
 /*
  * update - enemy_bases         -> add center of enemy resource depot
@@ -362,10 +391,10 @@ void Unit_Mapping::add_enemy_base(BWAPI::Unit u)
  * idea - add the base with offset from top left corner
  */
 {
-	enemy_bases.push_back(u->getPosition() + Position(64, 48));
-}//..
-
-// Add Enemy Base../
+	if (Unit_Mapping_Debugging) std::cout << "Unit_Mapping::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
+	std::vector<BWAPI::Position> test;
+	enemy_base = (u->getPosition() + Position(64, 48));
+}
 void Unit_Mapping::add_enemy_base(BWAPI::Position pos)
 /*
  * update - enemy_bases         -> add center of enemy resource depot
@@ -373,39 +402,50 @@ void Unit_Mapping::add_enemy_base(BWAPI::Position pos)
  * idea - add the base with offset from top left corner
  */
 {
-	enemy_bases.push_back(pos + Position(64, 48));
-}//..
+	if (Unit_Mapping_Debugging) std::cout << "Unit_Mapping::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
 
-// Enemy Base Found?../
-bool Unit_Mapping::enemy_base_found(BWAPI::Unit u)
-{
-	return enemy_bases.empty();
-}//..
+	enemy_base = (pos + Position(64, 48));
+}
 
-// Getting Granite's Mapped Units
-int Unit_Mapping::g_count(BWAPI::UnitType u)// ../
+// bool Unit_Mapping::enemy_base_found(BWAPI::Unit u)
+// {
+// 	if (Unit_Mapping_Debugging) std::cout << "Unit_Mapping::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
+//
+// 	return enemy_bases.empty();
+// }
+
+int Unit_Mapping::g_count(BWAPI::UnitType u)
 {
+	if (Unit_Mapping_Debugging) std::cout << "Unit_Mapping::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
+
 	return g_unit_count[u];
-}//..
+}
 
-int Unit_Mapping::g_total_count(BWAPI::UnitType u)// ../
+int Unit_Mapping::g_total_count(BWAPI::UnitType u)
 {
+	if (Unit_Mapping_Debugging) std::cout << "Unit_Mapping::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
+
 	return g_warp_count[u] + g_unit_count[u];
-}//..
-
-int Unit_Mapping::g_warping_count(BWAPI::UnitType u)// ../
+}
+int Unit_Mapping::g_warping_count(BWAPI::UnitType u)
 {
+	if (Unit_Mapping_Debugging) std::cout << "Unit_Mapping::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
+
 	return g_warp_count[u];
 }//..
 
 // Getting Enemy's Mapped Units
 int Unit_Mapping::e_count(BWAPI::UnitType u)// ../
 {
+	if (Unit_Mapping_Debugging) std::cout << "Unit_Mapping::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
+
 	return e_unit_count[u];
 }//..
 
 int Unit_Mapping::e_total_count(BWAPI::UnitType u)// ../
 {
+	if (Unit_Mapping_Debugging) std::cout << "Unit_Mapping::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
+
 	return e_warp_count[u] + e_unit_count[u];
 }//..
 
@@ -416,6 +456,8 @@ int Unit_Mapping::e_warping_count(BWAPI::UnitType u)// ../
 
 std::vector<BWAPI::Position> Unit_Mapping::e_get_potential_startpositions()
 {
+	if (Unit_Mapping_Debugging) std::cout << "Unit_Mapping::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
+
 	std::vector<BWAPI::Position> positions;
 
 	for (auto tile : BWAPI::Broodwar->getStartLocations())//iterating through enemy start locations
@@ -423,31 +465,37 @@ std::vector<BWAPI::Position> Unit_Mapping::e_get_potential_startpositions()
 		BWAPI::Position pos(tile);
 		if (!(tile == BWAPI::Broodwar->self()->getStartLocation()))
 		{
-			//positions().push_back(pos);
+			positions.push_back(pos);
 		}
 	}
+	if (Unit_Mapping_Debugging) std::cout << "pot_e_loc: " << size(positions) << std::endl;
 	return positions;
 }
 
-// Enemy ID mapping
-// Mapping enemy unit ID ../
 bool Unit_Mapping::enemy_mapped(BWAPI::Unit u)
 {
+	if (Unit_Mapping_Debugging) std::cout << "Unit_Mapping::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
+
 	return enemy_units[u->getID()];
 }
 
 void Unit_Mapping::add_enemy_ID(BWAPI::Unit u)
 {
+	if (Unit_Mapping_Debugging) std::cout << "Unit_Mapping::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
+
 	enemy_units[u->getID()] = true;
 }
 void Unit_Mapping::del_enemy_ID(BWAPI::Unit u)
 {
-	enemy_units[u->getID()] = false;
-}//..
+	if (Unit_Mapping_Debugging) std::cout << "Unit_Mapping::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
 
-// Mapping warping enemy unit ID ../
+	enemy_units[u->getID()] = false;
+}
+
 bool Unit_Mapping::w_enemy_mapped(BWAPI::Unit u)
 {
+	if (Unit_Mapping_Debugging) std::cout << "Unit_Mapping::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
+
 	return w_enemy_units[u->getID()];
 }
 void Unit_Mapping::w_add_enemy_ID(BWAPI::Unit u)
@@ -456,66 +504,73 @@ void Unit_Mapping::w_add_enemy_ID(BWAPI::Unit u)
 }
 void Unit_Mapping::w_del_enemy_ID(BWAPI::Unit u)
 {
-	w_enemy_units[u->getID()] = false;
-}//..
+	if (Unit_Mapping_Debugging) std::cout << "Unit_Mapping::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
 
-// Mapping Tasks for workers
-int Unit_Mapping::get_task(BWAPI::Unit u)// ../
+	w_enemy_units[u->getID()] = false;
+}
+int Unit_Mapping::get_task(BWAPI::Unit u)
 {
+	if (Unit_Mapping_Debugging) std::cout << "Unit_Mapping::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
+
 	if (!u)
 		return -1;
 	if (u->getType().isWorker())
 		return worker_task[u];
 	return -1;
-}//..
-
-void Unit_Mapping::set_task(BWAPI::Unit u, enum worker_detail task)// ../
+}
+void Unit_Mapping::set_task(BWAPI::Unit u, enum worker_detail task)
 {
+	if (Unit_Mapping_Debugging) std::cout << "Unit_Mapping::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
 	if (!u)
 		return;
 	if (u->getType().isWorker())
 		worker_task[u] = task;
-}//..
+}
 
-//Unit health mapping
-int Unit_Mapping::get_unit_shp(BWAPI::Unit u)// ../
+int Unit_Mapping::get_unit_shp(BWAPI::Unit u)
 {
+	if (Unit_Mapping_Debugging) std::cout << "Unit_Mapping::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
+
 	return unit_shp[u];
-}//..
-
-void Unit_Mapping::set_unit_shp(BWAPI::Unit u)// ../
+}
+void Unit_Mapping::set_unit_shp(BWAPI::Unit u)
 {
+	if (Unit_Mapping_Debugging) std::cout << "Unit_Mapping::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
+
 	unit_shp[u] = u->getShields() + u->getHitPoints();
-}//..
-
-//Unit under attack map
-bool Unit_Mapping::is_under_fire(BWAPI::Unit u)// ../
+}
+bool Unit_Mapping::is_under_fire(BWAPI::Unit u)
 {
+	if (Unit_Mapping_Debugging) std::cout << "Unit_Mapping::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
+
 	return under_fire[u].is;
-}//..
+}
 
-int Unit_Mapping::last_frame_attacked(BWAPI::Unit u)// ../
+int Unit_Mapping::last_frame_attacked(BWAPI::Unit u)
 {
-	return under_fire[u].last_frame;
-}//..
+	if (Unit_Mapping_Debugging) std::cout << "Unit_Mapping::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
 
-void Unit_Mapping::set_under_fire(BWAPI::Unit u)// ../
+	return under_fire[u].last_frame;
+}
+void Unit_Mapping::set_under_fire(BWAPI::Unit u)
 {
 	under_fire[u].is = true;
 	under_fire[u].last_frame = Broodwar->getFrameCount();
 	worker_task[u] = EVADE;
 	set_unit_shp(u);
-}//..
+}
 
-void Unit_Mapping::set_not_under_fire(BWAPI::Unit u)// ../
+void Unit_Mapping::set_not_under_fire(BWAPI::Unit u)
 {
+	if (Unit_Mapping_Debugging) std::cout << "Unit_Mapping::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
+
 	under_fire[u].is = false;
 	worker_task[u] = IDLE;
-}//..
-
-//Worker defense engagement map
-void Unit_Mapping::clear_worker_engage(BWAPI::Unitset enemy)// ../
+}
+void Unit_Mapping::clear_worker_engage(BWAPI::Unitset enemy)
 {
+	if (Unit_Mapping_Debugging) std::cout << "Unit_Mapping::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
+
 	for (auto& u : enemy)
 	{
 		for (auto& y : worker_engage[u])
@@ -525,11 +580,12 @@ void Unit_Mapping::clear_worker_engage(BWAPI::Unitset enemy)// ../
 		}
 		worker_engage[u].clear();
 	}
-}//..
-
-void Unit_Mapping::set_worker_engage(BWAPI::Unitset enemy, // ../
+}
+void Unit_Mapping::set_worker_engage(BWAPI::Unitset enemy,
 	BWAPI::Unitset worker)
 {
+	if (Unit_Mapping_Debugging) std::cout << "Unit_Mapping::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
+
 	Unit to_add;
 	for (auto& u : enemy)
 	{
@@ -544,16 +600,18 @@ void Unit_Mapping::set_worker_engage(BWAPI::Unitset enemy, // ../
 			else { return; }
 		}
 	}
-}//..
-
-BWAPI::Unitset Unit_Mapping::get_defenders(BWAPI::Unit enemy)// ..//
+}
+BWAPI::Unitset Unit_Mapping::get_defenders(BWAPI::Unit enemy)
 {
-	return worker_engage[enemy];
-}//..
+	if (Unit_Mapping_Debugging) std::cout << "Unit_Mapping::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
 
-BWAPI::Unit Unit_Mapping::closest_attacker(BWAPI::Unit enemy, // ../
+	return worker_engage[enemy];
+}
+BWAPI::Unit Unit_Mapping::closest_attacker(BWAPI::Unit enemy,
 	BWAPI::Unitset worker)
 {
+	if (Unit_Mapping_Debugging) std::cout << "Unit_Mapping::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
+
 	int distance, closest_dist = 9999999;
 	Unit closest = nullptr;
 
@@ -571,4 +629,4 @@ BWAPI::Unit Unit_Mapping::closest_attacker(BWAPI::Unit enemy, // ../
 		}
 	}
 	return closest;
-}//..
+}

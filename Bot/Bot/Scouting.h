@@ -15,12 +15,12 @@ class Scouting
 	// all interfaces are totally seperated and do not communicate with each other
 	//TODO integrate this into Unit_Mapping ad into the main_bot
 
-	friend class Globalmanager;
 	//this is the class to control a vector of scouts
 public:
 
 	void scout_start_loc(Unit_Mapping* map);
 	void on_start(Unit_Mapping* map);
+	void print();
 	void onFrame(Unit_Mapping* map);
 	void replace_if_scout(BWAPI::Unit unit, Unit_Mapping* map);
 	bool in_remaining_path(BWAPI::Position element);
@@ -58,8 +58,8 @@ private:
 
 	bool pos_in_path(BWAPI::Position position, vector<BWAPI::Position> path);
 	void parse_start_loc(Unit_Mapping* map);
-	void on_arrived(Scout_Interface scout, Unit_Mapping* map);
-	void on_discovery(Scout_Interface* scout, Unit_Mapping* map);
+	void on_arrived_at_final_dest(Scout_Interface scout, Unit_Mapping* map);
+	void on_e_base_discovery(Scout_Interface* scout, Unit_Mapping* map);
 	void Scouting::update_scout_path(Scout_Interface* scout, Unit_Mapping* map);
 	void Scouting::add_scout(Unit_Mapping* map);
 	Scouting_phases Phase = Scouting_phases::STARTING;

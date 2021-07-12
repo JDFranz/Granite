@@ -4,9 +4,7 @@
 using namespace std;
 
 class Scouting;
-
 const  bool Scout_Debugging = true;
-
 class Scout_Interface
 {
 	friend class Scouting;
@@ -16,20 +14,22 @@ public:
 	Scout_Interface(vector<BWAPI::Position> path, Unit_Mapping* map);
 	//Scout_Interface(BWAPI::Unit scout);
 	~Scout_Interface();
-	bool discovered(Unit_Mapping* m_map);
+	bool is_e_discovered(Unit_Mapping* m_map);
 	bool at_destination(); //operating on in_range
 	bool waypoint_in_sight();
 	bool at_final_dest();
 	bool move(Unit_Mapping* map);
-	void set_dest_path(vector<BWAPI::Position> dest_path);
+
+	void set_dest_path_stupidly(vector<BWAPI::Position> path);
+	void set_dest_path_smartly(vector<BWAPI::Position> dest_path);
+
 	vector<BWAPI::Position> get_dest_path();
 	BWAPI::Unit get_scout();
 	void scout_killed(Unit_Mapping* map);
 
 private:
 
-	vector<BWAPI::Position> m_path;
-	vector<BWAPI::Position>::iterator m_iterator;
+	vector<BWAPI::Position> m_path_togo;
 	BWAPI::Unit m_scout;
 
 	void find_scout(Unit_Mapping* map);

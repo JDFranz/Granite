@@ -2,6 +2,8 @@
 #include <BWAPI.h>
 #include <Tools.h>
 
+const  bool Unit_Mapping_Debugging = true;
+
 enum worker_detail { MINE, HARVEST, BUILD, SCOUT, ATTACK, DEFEND, IDLE, EVADE };
 enum buildings {
 	NEXUS = 1, PYLON, GATEWAY, ASSIMILATOR, SHIELD,
@@ -19,6 +21,7 @@ public:
 
 	//Counting  Stuff../
 	Unit_Mapping();
+	~Unit_Mapping();
 	void Unit_Mapping::add_to_count(BWAPI::Unit u);
 	void Unit_Mapping::remove_from_count(BWAPI::Unit u, bool warping);
 	int Unit_Mapping::g_count(BWAPI::UnitType u);//granite
@@ -77,8 +80,7 @@ private:// ../
 	std::map<BWAPI::Unit, enum worker_detail> worker_task;
 	std::map<int, bool> enemy_units;
 	std::map<int, bool> w_enemy_units;
-
-	std::vector<BWAPI::Position> enemy_bases;
+	BWAPI::Position enemy_base;
 
 	std::map<BWAPI::UnitType, int> g_unit_count; //granite
 	std::map<BWAPI::UnitType, int> g_warp_count;

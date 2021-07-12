@@ -1,4 +1,5 @@
 #include "Scouting.h"
+using namespace std;
 
 void Scouting::scout_start_loc(Unit_Mapping* map)
 /*
@@ -17,24 +18,25 @@ void Scouting::scout_start_loc(Unit_Mapping* map)
 {
 	if (Scout_Debugging) std::cout << "Scouting::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
 
-	if (size(map->e_get_potential_startpositions()) == 1) // one other startlocation-> enemy will be there
+	auto e_pot_pos = map->e_get_potential_startpositions();
+
+	vector<BWAPI::Position> path1;
+	vector<BWAPI::Position> path2;
+
+	if (size(e_pot_pos) == 1) // one other startlocation-> enemy will be there
 	{
-		for (auto& u : map->e_get_potential_startpositions())
-		{
-			e_basediscovered = true;
-			map->add_enemy_base(*(map->e_get_potential_startpositions().begin()));
-			(*m_scout_total_paths.begin()).push_back(u);
-			(*m_scout_total_paths.begin()).push_back(u);
-			return;
-		}
+		e_basediscovered = true;
+		path1.push_back(*(e_pot_pos.begin()));
+		map->add_enemy_base(*(e_pot_pos.begin()));
+		m_scout_total_paths.push_back(path1);
+		m_scout_not_assigned_paths.push_back(path1);
+		return;
 	}
 	else
 	{ // we assume there is an infinite number of e_pot_baselocs but we want to assign two scouts maximum
 		//get distances
 		int num_pos = 0;
-		vector<BWAPI::Position> path1;
-		vector<BWAPI::Position> path2;
-		for (auto& u : map->e_get_potential_startpositions())
+		for (auto& u : e_pot_pos)
 		{
 			if (num_pos == 0 || num_pos == 1) path1.push_back(u);
 			else path2.push_back(u);
@@ -47,8 +49,10 @@ void Scouting::scout_start_loc(Unit_Mapping* map)
 		m_scout_not_assigned_paths.push_back(path1);
 		Phase = Scouting_phases::INITIAL_SCOUTING;
 
+		if (Scout_Debugging) std::cout << "	->num of paths: " << size(m_scout_total_paths) << std::endl;
 		// preload the first path into m_scout_assigned_paths add a scout
 		add_scout(map);
+
 		/*TODO: order the path to have efficient pathfinding
 		m_scout_assigned_paths.push_back(path2);
 		m_scout_assigned_paths.push_back(path1);
@@ -82,6 +86,62 @@ void Scouting::scout_start_loc(Unit_Mapping* map)
 	}
 }
 
+void Scouting::print()
+{
+	cout << "|||||||||||||||||||||||||||||||||||||||||||||||||||||||||" << endl;
+	cout << "m_scout_assigned_paths" << endl;
+	for (auto path : m_scout_assigned_paths)
+	{
+		for (auto waypoint : path)
+		{
+			cout << " -> " << waypoint.x << " " << waypoint.y;
+			if (waypoint == BWAPI::Position(BWAPI::Broodwar->self()->getStartLocation()))
+			{
+				cout << "<== THIS IS G STARTLOC" << endl;
+			}
+		}
+		cout << endl;
+	}
+	cout << endl;
+
+	cout << "m_scout_not_assigned_paths" << endl;
+	for (auto path : m_scout_not_assigned_paths)
+	{
+		for (auto waypoint : path)
+		{
+			cout << " -> " << waypoint.x << " " << waypoint.y;
+			if (waypoint == BWAPI::Position(BWAPI::Broodwar->self()->getStartLocation()))
+			{
+				cout << "<== THIS IS G STARTLOC" << endl;
+			}
+		}
+		cout << endl;
+	}
+	cout << endl;
+
+	cout << "m_scout_total_paths" << endl;
+	for (auto path : m_scout_total_paths)
+	{
+		for (auto waypoint : path)
+		{
+			cout << " -> " << waypoint.x << " " << waypoint.y;
+			if (waypoint == BWAPI::Position(BWAPI::Broodwar->self()->getStartLocation()))
+			{
+				cout << "<== THIS IS G STARTLOC" << endl;
+			}
+		}
+		cout << endl;
+	}
+
+	cout << "our scouts:" << endl;
+	for (auto scout : m_scouts)
+	{
+		cout << scout.get_scout()->getID() << ", ";
+	}
+	cout << endl;
+	cout << "|||||||||||||||||||||||||||||||||||||||||||||||||||||||||" << endl;
+}
+
 void Scouting::onFrame(Unit_Mapping* map)
 /**\name:update_scout_interface
  * --------------------> status:debugging
@@ -95,8 +155,15 @@ void Scouting::onFrame(Unit_Mapping* map)
  * \param : map sightings pos of scout etc.
  */
 {
-	if (Scout_Debugging) std::cout << "Scouting::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
+	//check Statespace
+	if (Phase == Scouting_phases::STARTING) scout_start_loc(map);
+	else if (Phase == Scouting_phases::INITIAL_SCOUTING);
+	else if (Phase == Scouting_phases::E_BASE_LOCATED);
+	else if (Phase == Scouting_phases::E_BASE_SIGHTED)return;
+	else if (Phase == Scouting_phases::LATE_GAME)return;
+	else cout << "UNDEFINED STATE" << endl;
 
+	if (Scout_Debugging) std::cout << "Scouting::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
 	// return if there is nothing to scout for
 	if (m_scout_not_assigned_paths.empty() && m_scouts.empty())
 		return;
@@ -106,12 +173,18 @@ void Scouting::onFrame(Unit_Mapping* map)
 		add_scout(map);
 
 	// update scouts if they discovered enemy or arrived at destination
+
 	for (auto& u : m_scouts)
 	{
-		if (u.discovered(map))
-			on_discovery(&u, map);
+		if (u.is_e_discovered(map))
+		{
+			on_e_base_discovery(&u, map);
+			return;
+		}
 		if (u.at_final_dest())
-			on_arrived(u, map);
+		{
+			on_arrived_at_final_dest(u, map);
+		}
 	}
 
 	// order scouts to move
@@ -119,6 +192,7 @@ void Scouting::onFrame(Unit_Mapping* map)
 	{
 		u.move(map);
 	}
+	if (Scout_Debugging) print();
 }
 
 void Scouting::replace_if_scout(BWAPI::Unit unit, Unit_Mapping* map)
@@ -139,7 +213,7 @@ void Scouting::replace_if_scout(BWAPI::Unit unit, Unit_Mapping* map)
 	}
 }
 
-void Scouting::on_arrived(Scout_Interface scout, Unit_Mapping* map)
+void Scouting::on_arrived_at_final_dest(Scout_Interface scout, Unit_Mapping* map)
 /**\name:on_arrived
  * --------------------> status:
  * \call : when a scout arrived at the end of a path
@@ -155,7 +229,7 @@ void Scouting::on_arrived(Scout_Interface scout, Unit_Mapping* map)
 	add_scout(map);
 }
 
-void Scouting::on_discovery(Scout_Interface* scout, Unit_Mapping* map)
+void Scouting::on_e_base_discovery(Scout_Interface* scout, Unit_Mapping* map)
 /*
  * update - scout object       -> new destination path
  *          m_scouts           -> add a scout if there are more
@@ -202,6 +276,8 @@ void Scouting::on_discovery(Scout_Interface* scout, Unit_Mapping* map)
 			}
 			else it_scouts++;
 		}
+
+	Phase = Scouting_phases::E_BASE_SIGHTED;
 }
 
 void Scouting::update_scout_path(Scout_Interface* scout, Unit_Mapping* map)
@@ -224,7 +300,7 @@ void Scouting::update_scout_path(Scout_Interface* scout, Unit_Mapping* map)
 	if (!m_scout_assigned_paths.empty())
 	{
 		vector<BWAPI::Position>  path = closest_path(scout->get_scout());
-		scout->set_dest_path(path);
+		scout->set_dest_path_stupidly(path);
 		m_scout_assigned_paths.pop_back();
 	}
 	else { //there are no more paths to scout
@@ -281,12 +357,12 @@ vector<BWAPI::Position> Scouting::closest_path(BWAPI::Unit scout)
 			{
 				mindist == dist;
 			}
-		}
-	}
 
-	for (auto path : m_scout_not_assigned_paths)
-	{
-		if (path.front().getDistance(scout_pos) == mindist)
-			return path;
+			for (auto path : m_scout_not_assigned_paths)
+			{
+				if (path.front().getDistance(scout_pos) == mindist)
+					return path;
+			}
+		}
 	}
 }
