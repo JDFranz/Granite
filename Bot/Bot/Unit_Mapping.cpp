@@ -4,7 +4,6 @@
 #include <memory>
 #include <memory>
 #include <string>
-#include "RefreshViolation.hpp"
 
 using namespace BWAPI;
 using namespace Filter;
@@ -29,7 +28,7 @@ void Unit_Mapping::print()
 	cout << "|||||||||Unit_Mapping|||||||||||||||||||||||||||||||||||" << endl;
 	cout << "Our Worker Units and Tasks" << endl;
 
-	for (auto item : worker_tasks_list)
+	for (auto item : worker_task)
 	{
 		cout << "|WorkerID: " << item.first << "|Task: " << item.second << endl;
 	}
@@ -532,49 +531,18 @@ void Unit_Mapping::w_del_enemy_ID(BWAPI::Unit u)
 const int Unit_Mapping::get_task(BWAPI::Unit u)
 {
 	if (Unit_Mapping_Debugging) std::cout << "Unit_Mapping::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
-
-	for (auto pair : worker_tasks_list)
-	{
-		if (pair.first == u->getID())
-		{
-			return pair.second;
-		}
-	}
-
-	// try
-	// {
-	// 	if (!u) return -1;
-	// 	if (u->getType().isWorker()) return worker_task[u->getID()];
-	// 	return -1;
-	// }
-	// catch (const std::exception& ex)
-	// {
-	// 	throw RefreshViolation();
-	// }
+	if (!u) return -1;
+	if (u->getType().isWorker()) return worker_task[u->getID()];
+	return -1;
 }
 void Unit_Mapping::set_task(BWAPI::Unit u, enum worker_detail task)
 {
 	if (Unit_Mapping_Debugging) std::cout << "Unit_Mapping::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
-	//throw RefreshViolation(u, task);
-	for (auto pair : worker_tasks_list)
-	{
-		if (pair.first == u->getID())
-		{
-			pair.second = task;
-			return;
-		}
-	}
-	worker_tasks_list.push_back(std::pair<int, enum worker_detail>(u->getID(), task));
-	// try
-	// {
-	// 	if (!u)
-	// 		return;
-	// 	worker_task[u->getID()] = task;
-	// }
-	// catch (const std::exception& ex)
-	// {
-	// 	throw RefreshViolation();
-	// }
+
+	if (!u) return;
+	if (u == nullptr) return;
+	if (u == NULL) return;
+	worker_task[u->getID()] = task;
 }
 
 int Unit_Mapping::get_unit_shp(BWAPI::Unit u)

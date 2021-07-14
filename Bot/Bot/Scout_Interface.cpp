@@ -5,7 +5,15 @@ Scout_Interface::Scout_Interface(vector<BWAPI::Position> path, shared_ptr< Unit_
 	m_path_togo(path)
 {
 	if (Scout_Debugging) std::cout << "Scout_Interface::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
-	find_scout(map);
+	find_scout(map, false);
+	set_dest_path_stupidly(path);
+}
+
+Scout_Interface::Scout_Interface(vector<BWAPI::Position> path, shared_ptr<Unit_Mapping> map, bool lost) :
+	m_path_togo(path)
+{
+	if (Scout_Debugging) std::cout << "Scout_Interface::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
+	find_scout(map, lost);
 	set_dest_path_stupidly(path);
 }
 
@@ -17,7 +25,7 @@ Scout_Interface::~Scout_Interface()
 
 bool Scout_Interface::is_e_discovered()
 /**\name:discovered
- * --------------------> status: debugging
+ * --------------------> status: working
 *\call : on every update
 *\brief : determines whether the enemy is found by ckecking
 * whether an enemy is sighted within a certain proximity
@@ -56,7 +64,7 @@ bool Scout_Interface::is_e_discovered()
 
 bool Scout_Interface::is_at_final_dest()
 /**\name:at_final_dest
- * --------------------> status:
+ * --------------------> status: working
  * \call : multiple
  * \brief : check if scout can see final destination of its assigned path
  * \detail : /
@@ -75,7 +83,7 @@ bool Scout_Interface::is_at_final_dest()
 
 bool Scout_Interface::move(shared_ptr< Unit_Mapping> map)
 /**\name:move
- * --------------------> status:debugging
+ * --------------------> status:working
  * \call : when scout arrives at a destination
  * \brief :
  * \detail :
@@ -93,6 +101,12 @@ bool Scout_Interface::move(shared_ptr< Unit_Mapping> map)
 	return true;
 }
 void Scout_Interface::set_dest_path_stupidly(vector<BWAPI::Position> path)
+/**\name:set_dest_path_stupidly
+ * --------------------> status: working
+ * \call : on constructor
+ * detail : !!! you can't use this in a constructor before pre assigning path and iterator
+ * \brief : set the first path element of a scout to the first element of a path
+ */
 {
 	if (Scout_Debugging) std::cout << "Scout_Interface::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
 	if (Scout_Debugging)
@@ -114,7 +128,7 @@ void Scout_Interface::set_dest_path_stupidly(vector<BWAPI::Position> path)
 
 void Scout_Interface::set_dest_path_smartly(vector<BWAPI::Position> path) //why? I think it is too complicated
 /**\name:set_dest_path
- * --------------------> status: debugging
+ * --------------------> status: working
  * \call : when a new scout is needed it has to have a path
  * \brief : find the element of path, which is closest to the new scout, let him start scouting there by setting the iterator to that element.
  * \detail : !!! you can't use this in a constructor before pre assigning path and iterator
@@ -173,10 +187,10 @@ void Scout_Interface::scout_killed(shared_ptr< Unit_Mapping> map)
 {
 	if (Scout_Debugging) std::cout << "Scout_Interface::scout_killed" << std::endl;
 	//for debugging purposes change in "Debugger.hpp"
-	find_scout(map);
+	find_scout(map, false);
 }
 
-void Scout_Interface::find_scout(shared_ptr< Unit_Mapping> map)
+void Scout_Interface::find_scout(shared_ptr< Unit_Mapping> map, bool far_from_g_base)
 /**\name:find_scout
  * --------------------> status: Debugging
  * \call : everytime a new scout is needed
@@ -196,7 +210,15 @@ void Scout_Interface::find_scout(shared_ptr< Unit_Mapping> map)
 
 		if (map->get_task(u) == BUILD || map->get_task(u) == HARVEST) //that means every other worker has to be sorted beforehand
 			continue;
+		if (map->get_task(u) == SCOUT) continue; // we would be reassigning a scout however we want to add
 
+		if (far_from_g_base) // we just want to have lost scouts
+		{
+			if (u->getDistance(BWAPI::Position(BWAPI::Broodwar->self()->getStartLocation())) < 5000) //we are not looking for workers within a certain proximity
+			{
+				continue;
+			}
+		}
 		//"Find the element of m_path_togo that scout is closest to";
 		//"set iterator to that element";
 		for (auto it = m_path_togo.begin(); it != m_path_togo.end(); it++)
@@ -230,10 +252,9 @@ void Scout_Interface::find_scout(shared_ptr< Unit_Mapping> map)
 // At Destination?../
 bool Scout_Interface::is_at_destination()
 /**\name:at_destination
- * --------------------> status: debugging
- * \call :
- * \brief :
- * \detail :
+ * --------------------> status: working
+ * \call : update_scout_path
+ * \brief : checks whether a this scout can see a destination
  * \return : bool
  */
 {
@@ -244,7 +265,7 @@ bool Scout_Interface::is_at_destination()
 }
 bool Scout_Interface::is_waypoint_in_sight()
 /**\name:in_range
- * --------------------> status: Debugging
+ * --------------------> status: working
  * \call : at_destination ,
  * \brief : checks whether a probe scouter can see a position.
  * \detail :/
@@ -272,7 +293,7 @@ bool Scout_Interface::is_waypoint_in_sight()
 
 float Scout_Interface::distance(BWAPI::Position pos1, BWAPI::Position pos2)
 /**\name:distance
- * --------------------> status: Debugging
+ * --------------------> status: working
  * \call :multiple
  * \brief : calculates distance between two positions
  * \detail :/
@@ -287,8 +308,8 @@ float Scout_Interface::distance(BWAPI::Position pos1, BWAPI::Position pos2)
 
 void Scout_Interface::SmartMove(BWAPI::Unit attacker, const BWAPI::Position& targetPosition)
 /**\name:SmartMove
- * --------------------> status: TODO
- * \call :
+ * --------------------> status: t
+ * \call : ::move
  * \brief : probably to evade attacker
  * \detail :
  * \param : attacker
@@ -319,7 +340,7 @@ void Scout_Interface::SmartMove(BWAPI::Unit attacker, const BWAPI::Position& tar
 	// if nothing prevents it, attack the target
 	attacker->move(targetPosition);
 
-	//  if (Config::Debug::DrawUnitTargetInfo)
+	//  if ()
 	//  {
 	//      BWAPI::Broodwar->drawCircleMap(attacker->getPosition(), dotRadius, BWAPI::Colors::White, true);
 	//      BWAPI::Broodwar->drawCircleMap(targetPosition, dotRadius, BWAPI::Colors::White, true);

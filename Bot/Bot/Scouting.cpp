@@ -89,6 +89,14 @@ void Scouting::scout_start_loc(shared_ptr< Unit_Mapping> map)
 	}
 }
 
+void Scouting::return_idle_to_G_base(shared_ptr<Unit_Mapping> map)
+{
+	std::vector<BWAPI::Position> way_home;
+	way_home.push_back(BWAPI::Position(BWAPI::Broodwar->self()->getStartLocation()));
+	m_scouts.push_back(Scout_Interface(way_home, map, true));
+	m_scout_assigned_paths.push_back(way_home);
+}
+
 const void Scouting::print()
 {
 	cout << "|||||||||||||||||||||||||||||||||||||||||||||||||||||||||" << endl;
@@ -181,7 +189,7 @@ void Scouting::onFrame(shared_ptr< Unit_Mapping> map)
 		add_scout(map);
 
 	// update scouts if they discovered enemy or arrived at destination
-	//if (Unit_Mapping_Debugging)map->print();
+
 	for (auto& u : m_scouts)
 	{
 		if (u.is_e_discovered())
@@ -211,7 +219,6 @@ void Scouting::replace_if_scout(BWAPI::Unit unit, shared_ptr< Unit_Mapping> map)
  * \param : unit f the unit that was killed was a scout track it on map
  * \param : map
  */
-
 {
 	if (Scout_Debugging) std::cout << "Scouting::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
 
@@ -235,6 +242,8 @@ void Scouting::on_arrived_at_final_dest(Scout_Interface scout, shared_ptr< Unit_
 
 	update_scout_path(&scout, map);
 	if (Phase == Scouting_phases::INITIAL_SCOUTING) add_scout(map);
+	map->set_task(scout.get_scout(), worker_detail::IDLE);
+	return_idle_to_G_base(map);
 }
 
 void Scouting::on_e_base_discovery(Scout_Interface* scout, shared_ptr< Unit_Mapping> map)
@@ -242,12 +251,10 @@ void Scouting::on_e_base_discovery(Scout_Interface* scout, shared_ptr< Unit_Mapp
 	if (Scout_Debugging) std::cout << "Scouting::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
 	// record discovery
 
-	//if (Unit_Mapping_Debugging)map->print();
 	map->add_enemy_base(scout->get_scout());
 	e_basediscovered = true;
 	if (!(Phase == Scouting_phases::INITIAL_SCOUTING) || Phase == Scouting_phases::E_BASE_LOCATED) return;
 	// remove all paths
-	//for (auto &u : m_scout_total_paths)
 	m_scout_assigned_paths.clear();
 	m_scout_not_assigned_paths.clear();
 	m_scout_assigned_paths.clear();
@@ -336,7 +343,6 @@ bool Scouting::pos_in_path(BWAPI::Position position, vector<BWAPI::Position> pat
 	if (Scout_Debugging) std::cout << "Scouting::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
 
 	if ((std::find(path.begin(), path.end(), position) != path.end()))
-		//(m_scout_assigned_paths.contains(element))
 		return true;
 	return false;
 }

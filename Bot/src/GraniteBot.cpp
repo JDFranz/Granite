@@ -6,8 +6,8 @@
 void GraniteBot::onStart()
 {
 	// Set our BWAPI options here
-	BWAPI::Broodwar->setLocalSpeed(3);
-	BWAPI::Broodwar->setFrameSkip(1);
+	BWAPI::Broodwar->setLocalSpeed(10);
+	BWAPI::Broodwar->setFrameSkip(5);
 	// Enable the flag that tells BWAPI top let users enter input while bot plays
 	BWAPI::Broodwar->enableFlag(BWAPI::Flag::UserInput);
 
@@ -27,31 +27,18 @@ void GraniteBot::onEnd(bool isWinner)
 // Called on each frame of the game
 void GraniteBot::onFrame()
 {
-	try
-	{
-		// Update our MapTools information
-		m_mapTools.onFrame();
-		m_scouting.onFrame(m_unit_mapping);
-		//unitvector = get_units();
-		//vector<BWAPI::Unit>workers = filter_worker();
-		//ecoman.onFrame(workers);
+	// Update our MapTools information
+	m_mapTools.onFrame();
+	m_scouting.onFrame(m_unit_mapping);
+	//unitvector = get_units();
+	//vector<BWAPI::Unit>workers = filter_worker();
+	//ecoman.onFrame(workers);
 
-		// Draw unit health bars, which brood war unfortunately does not do
-		Tools::DrawUnitHealthBars();
+	// Draw unit health bars, which brood war unfortunately does not do
+	Tools::DrawUnitHealthBars();
 
-		// Draw some relevent information to the screen to help us debug the bot
-		drawDebugInformation();
-	}
-	catch (const RefreshViolation& e)
-	{
-		//this happens when the pointer of Unit_Maping is outdated
-		//simply executing the next on Frame will probably resolve everything
-		//m_unit_mapping.set_task(e.unit, e.task);
-		m_mapTools.onFrame();
-		m_scouting.onFrame(m_unit_mapping);
-		Tools::DrawUnitHealthBars();
-		drawDebugInformation();
-	}
+	// Draw some relevent information to the screen to help us debug the bot
+	drawDebugInformation();
 }
 
 GraniteBot::GraniteBot() :

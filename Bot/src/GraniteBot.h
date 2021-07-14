@@ -4,7 +4,6 @@
 #include "BWAPI.h"
 #include "Scouting.h"
 #include <vector>
-#include "RefreshViolation.hpp"
 
 class Unit_Mapping;
 class EconomyManager;

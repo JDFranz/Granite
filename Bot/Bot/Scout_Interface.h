@@ -12,10 +12,11 @@ class Scout_Interface
 public:
 	Scout_Interface();
 	Scout_Interface(vector<BWAPI::Position> path, shared_ptr< Unit_Mapping> map);
+	Scout_Interface(vector<BWAPI::Position> path, shared_ptr< Unit_Mapping> map, bool lost);
 	//Scout_Interface(BWAPI::Unit scout);
 	~Scout_Interface();
 	bool is_e_discovered();
-	void find_scout(shared_ptr<Unit_Mapping> map);
+	void find_scout(shared_ptr< Unit_Mapping> map, bool far_from_g_base);
 	bool is_at_destination(); //operating on in_range
 	bool is_waypoint_in_sight();
 	bool is_at_final_dest();

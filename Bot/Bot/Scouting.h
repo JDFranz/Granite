@@ -7,6 +7,7 @@ enum class Scouting_phases {
 	INITIAL_SCOUTING,
 	E_BASE_LOCATED,
 	E_BASE_SIGHTED,
+	E_BASE_Fully_SCOUTED,
 	LATE_GAME
 };
 
@@ -18,7 +19,6 @@ class Scouting
 	//this is the class to control a vector of scouts
 public:
 
-	void scout_start_loc(shared_ptr<Unit_Mapping> map);
 	void on_start(Unit_Mapping* map);
 	const void print();
 	void onFrame(shared_ptr<Unit_Mapping> map);
@@ -57,10 +57,13 @@ private:
 	vector<Scout_Interface> m_scouts = vector<Scout_Interface>();
 
 	bool pos_in_path(BWAPI::Position position, vector<BWAPI::Position> path);
-	void parse_start_loc(Unit_Mapping* map);
 	void on_arrived_at_final_dest(Scout_Interface scout, shared_ptr< Unit_Mapping> map);
 	void on_e_base_discovery(Scout_Interface* scout, shared_ptr<Unit_Mapping> map);
 	void Scouting::update_scout_path(Scout_Interface* scout, shared_ptr<Unit_Mapping> map);
 	void Scouting::add_scout(shared_ptr<Unit_Mapping> map);
+	void scout_start_loc(shared_ptr<Unit_Mapping> map);
+	void add_lost_scout(const shared_ptr<Unit_Mapping>& map);
+	void return_idle_to_G_base(shared_ptr<Unit_Mapping> map);
+	void scout_enemy_base_on_sighted(shared_ptr<Unit_Mapping> map);
 	Scouting_phases Phase = Scouting_phases::STARTING;
 };
