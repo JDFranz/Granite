@@ -1,7 +1,7 @@
 #include "Scout_Interface.h"
 #include <BWAPI/AIModule.h>
 
-Scout_Interface::Scout_Interface(vector<BWAPI::Position> path, Unit_Mapping* map) :
+Scout_Interface::Scout_Interface(vector<BWAPI::Position> path, shared_ptr< Unit_Mapping> map) :
 	m_path_togo(path)
 {
 	if (Scout_Debugging) std::cout << "Scout_Interface::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
@@ -15,7 +15,7 @@ Scout_Interface::~Scout_Interface()
 	//if (m_scout) m_scout->stop();
 }
 
-bool Scout_Interface::is_e_discovered(Unit_Mapping* m_map)
+bool Scout_Interface::is_e_discovered()
 /**\name:discovered
  * --------------------> status: debugging
 *\call : on every update
@@ -31,6 +31,10 @@ bool Scout_Interface::is_e_discovered(Unit_Mapping* m_map)
 {
 	if (Scout_Debugging) std::cout << "Scout_Interface::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
 
+	if (m_path_togo.empty())
+	{
+		return false;
+	}
 	float desired_range = 12345; // range of building or creep discovered from
 							 // scouting destination that qualifies an
 							 // enemy base at that location.
@@ -40,7 +44,9 @@ bool Scout_Interface::is_e_discovered(Unit_Mapping* m_map)
 		BWAPI::Filter::IsBuilding)))
 	{
 		if (distance(u->getPosition(), m_path_togo.back()) <= desired_range)
+		{
 			return true;
+		}
 		//"iterate over tiles in desired_range of m_path_togo.last_element"
 
 		if (BWAPI::Broodwar->hasCreep(u->getTilePosition())) //if there is creep then there must be a nearby tumor and we have discovered the enemy
@@ -48,7 +54,7 @@ bool Scout_Interface::is_e_discovered(Unit_Mapping* m_map)
 	}
 }
 
-bool Scout_Interface::at_final_dest()
+bool Scout_Interface::is_at_final_dest()
 /**\name:at_final_dest
  * --------------------> status:
  * \call : multiple
@@ -58,13 +64,16 @@ bool Scout_Interface::at_final_dest()
  */
 {
 	if (Scout_Debugging) std::cout << "Scout_Interface::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
-
-	if (at_destination() && (m_path_togo.empty())) return true;
-
+	if (m_path_togo.empty())
+	{
+		if (Scout_Debugging) std::cout << "-> Add or remove Scout" << endl;
+		return true;
+	}
+	if (is_at_destination() && m_path_togo.empty()) return true;
 	return false;
 }
 
-bool Scout_Interface::move(Unit_Mapping* map)
+bool Scout_Interface::move(shared_ptr< Unit_Mapping> map)
 /**\name:move
  * --------------------> status:debugging
  * \call : when scout arrives at a destination
@@ -77,8 +86,8 @@ bool Scout_Interface::move(Unit_Mapping* map)
 	if (Scout_Debugging) std::cout << "Scout_Interface::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
 
 	if (!m_scout)scout_killed(map);
-	if (at_final_dest())return true;
-	if (at_destination()) m_path_togo.erase(m_path_togo.begin());
+	if (is_at_final_dest())return true;
+	if (is_at_destination()) m_path_togo.erase(m_path_togo.begin());
 	if (!m_path_togo.empty())SmartMove(m_scout, (*m_path_togo.begin()));
 
 	return true;
@@ -159,7 +168,7 @@ BWAPI::Unit Scout_Interface::get_scout()
 	if (Scout_Debugging) std::cout << "Scout_Interface::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
 	return m_scout;
 }
-void Scout_Interface::scout_killed(Unit_Mapping* map)
+void Scout_Interface::scout_killed(shared_ptr< Unit_Mapping> map)
 // Finds new scout
 {
 	if (Scout_Debugging) std::cout << "Scout_Interface::scout_killed" << std::endl;
@@ -167,7 +176,7 @@ void Scout_Interface::scout_killed(Unit_Mapping* map)
 	find_scout(map);
 }
 
-void Scout_Interface::find_scout(Unit_Mapping* map)
+void Scout_Interface::find_scout(shared_ptr< Unit_Mapping> map)
 /**\name:find_scout
  * --------------------> status: Debugging
  * \call : everytime a new scout is needed
@@ -213,13 +222,13 @@ void Scout_Interface::find_scout(Unit_Mapping* map)
 		if (Scout_Debugging) std::cout << "--->Scout is found" << std::endl;
 		// if there is no scout near any of the path positions
 				// for later shouldn't we find a new one?
-
+		//if (Unit_Mapping_Debugging)map->print();
 		map->set_task(m_scout, SCOUT); // set the task for this unit as Scouting
 	}
 }
 
 // At Destination?../
-bool Scout_Interface::at_destination()
+bool Scout_Interface::is_at_destination()
 /**\name:at_destination
  * --------------------> status: debugging
  * \call :
@@ -229,11 +238,11 @@ bool Scout_Interface::at_destination()
  */
 {
 	if (Scout_Debugging) std::cout << "Scout_Interface::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
-	if (waypoint_in_sight())
+	if (is_waypoint_in_sight())
 		return true;
 	return false;
 }
-bool Scout_Interface::waypoint_in_sight()
+bool Scout_Interface::is_waypoint_in_sight()
 /**\name:in_range
  * --------------------> status: Debugging
  * \call : at_destination ,
@@ -242,10 +251,11 @@ bool Scout_Interface::waypoint_in_sight()
  * \return : bool whether insight
  */
 {
+	if (Scout_Debugging) std::cout << "Scout_Interface::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
+
 	if (Scout_Debugging)
 	{
-		std::cout << "Scout_Interface::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
-		std::cout << "	current waypoint: " << (*m_path_togo.begin()).x << " " << (*m_path_togo.begin()).y << std::endl;
+		cout << "	current waypoint: " << (*m_path_togo.begin()).x << " " << (*m_path_togo.begin()).y << std::endl;
 		std::cout << "	Scout pos: " << (m_scout->getPosition()).x << " " << (m_scout->getPosition()).y << std::endl;
 	}
 
@@ -253,7 +263,8 @@ bool Scout_Interface::waypoint_in_sight()
 	// sightrange of a protoss probe is 8 tiles so 8*32= 256 pixels? ASK
 	if (m_scout->getDistance((*m_path_togo.begin())) <= 256)
 	{
-		if (Scout_Debugging) std::cout << "can see waypoint" << std::endl;
+		if (Scout_Debugging) std::cout << "		->can see waypoint" << std::endl;
+		m_scout->stop();
 		return true;
 	}
 	return false;

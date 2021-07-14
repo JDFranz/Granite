@@ -1,7 +1,7 @@
 #include "Scouting.h"
 using namespace std;
 
-void Scouting::scout_start_loc(Unit_Mapping* map)
+void Scouting::scout_start_loc(shared_ptr< Unit_Mapping> map)
 /*
  * update - enemy_loc     -> if 2 player map... set coords and return.
  *
@@ -27,6 +27,7 @@ void Scouting::scout_start_loc(Unit_Mapping* map)
 	{
 		e_basediscovered = true;
 		path1.push_back(*(e_pot_pos.begin()));
+		//if (Unit_Mapping_Debugging)map->print();
 		map->add_enemy_base(*(e_pot_pos.begin()));
 		m_scout_total_paths.push_back(path1);
 		m_scout_not_assigned_paths.push_back(path1);
@@ -50,8 +51,10 @@ void Scouting::scout_start_loc(Unit_Mapping* map)
 		Phase = Scouting_phases::INITIAL_SCOUTING;
 
 		if (Scout_Debugging) std::cout << "	->num of paths: " << size(m_scout_total_paths) << std::endl;
-		// preload the first path into m_scout_assigned_paths add a scout
+
+		//if (Unit_Mapping_Debugging)map->print();
 		add_scout(map);
+		// preload the first path into m_scout_assigned_paths add a scout
 
 		/*TODO: order the path to have efficient pathfinding
 		m_scout_assigned_paths.push_back(path2);
@@ -86,7 +89,7 @@ void Scouting::scout_start_loc(Unit_Mapping* map)
 	}
 }
 
-void Scouting::print()
+const void Scouting::print()
 {
 	cout << "|||||||||||||||||||||||||||||||||||||||||||||||||||||||||" << endl;
 	cout << "m_scout_assigned_paths" << endl;
@@ -142,7 +145,7 @@ void Scouting::print()
 	cout << "|||||||||||||||||||||||||||||||||||||||||||||||||||||||||" << endl;
 }
 
-void Scouting::onFrame(Unit_Mapping* map)
+void Scouting::onFrame(shared_ptr< Unit_Mapping> map)
 /**\name:update_scout_interface
  * --------------------> status:debugging
  * \call : by Granitebot class
@@ -155,6 +158,9 @@ void Scouting::onFrame(Unit_Mapping* map)
  * \param : map sightings pos of scout etc.
  */
 {
+	if (!map) throw exception();
+	if (&(*map) == nullptr) throw exception();
+
 	//check Statespace
 	if (Phase == Scouting_phases::STARTING) scout_start_loc(map);
 	else if (Phase == Scouting_phases::INITIAL_SCOUTING);
@@ -170,18 +176,20 @@ void Scouting::onFrame(Unit_Mapping* map)
 
 	// add a scout if no one is scouting
 	if (m_scouts.empty())
+
+		//if (Unit_Mapping_Debugging)map->print();
 		add_scout(map);
 
 	// update scouts if they discovered enemy or arrived at destination
-
+	//if (Unit_Mapping_Debugging)map->print();
 	for (auto& u : m_scouts)
 	{
-		if (u.is_e_discovered(map))
+		if (u.is_e_discovered())
 		{
 			on_e_base_discovery(&u, map);
 			return;
 		}
-		if (u.at_final_dest())
+		if (u.is_at_final_dest())
 		{
 			on_arrived_at_final_dest(u, map);
 		}
@@ -195,7 +203,7 @@ void Scouting::onFrame(Unit_Mapping* map)
 	if (Scout_Debugging) print();
 }
 
-void Scouting::replace_if_scout(BWAPI::Unit unit, Unit_Mapping* map)
+void Scouting::replace_if_scout(BWAPI::Unit unit, shared_ptr< Unit_Mapping> map)
 /**\name:replace_if_scout
  * --------------------> status: debugging
  * \call : onDestroyed
@@ -213,7 +221,7 @@ void Scouting::replace_if_scout(BWAPI::Unit unit, Unit_Mapping* map)
 	}
 }
 
-void Scouting::on_arrived_at_final_dest(Scout_Interface scout, Unit_Mapping* map)
+void Scouting::on_arrived_at_final_dest(Scout_Interface scout, shared_ptr< Unit_Mapping> map)
 /**\name:on_arrived
  * --------------------> status:
  * \call : when a scout arrived at the end of a path
@@ -226,61 +234,40 @@ void Scouting::on_arrived_at_final_dest(Scout_Interface scout, Unit_Mapping* map
 	if (Scout_Debugging) std::cout << "Scouting::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
 
 	update_scout_path(&scout, map);
-	add_scout(map);
+	if (Phase == Scouting_phases::INITIAL_SCOUTING) add_scout(map);
 }
 
-void Scouting::on_e_base_discovery(Scout_Interface* scout, Unit_Mapping* map)
-/*
- * update - scout object       -> new destination path
- *          m_scouts           -> add a scout if there are more
- *                                destination paths remove scout if
- *                                none
- *          m_map              -> add enemy base location
- *
- *          idea - Check m_scout_total_paths for more paths
- *                      if one exists assign it to the scout
- *                      else remove scout from vector and set it to IDLE
- *                 if another path exists add a new
- *                 scout and assign it the path
- */
+void Scouting::on_e_base_discovery(Scout_Interface* scout, shared_ptr< Unit_Mapping> map)
 {
 	if (Scout_Debugging) std::cout << "Scouting::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
-
 	// record discovery
+
+	//if (Unit_Mapping_Debugging)map->print();
 	map->add_enemy_base(scout->get_scout());
 	e_basediscovered = true;
-
-	// remove temporary paths
+	if (!(Phase == Scouting_phases::INITIAL_SCOUTING) || Phase == Scouting_phases::E_BASE_LOCATED) return;
+	// remove all paths
 	//for (auto &u : m_scout_total_paths)
-	for (auto it_path = m_scout_total_paths.begin(); it_path != m_scout_total_paths.end(); it_path = it_path)
-	{
-		for (auto it_temp = m_scout_assigned_paths.begin(); it_temp != m_scout_assigned_paths.end(); it_temp = it_temp)
-		{
-			if ((*it_path) == (*it_temp)) it_path = m_scout_total_paths.erase(it_path);
-			else it_path++;
-		}
-	}
 	m_scout_assigned_paths.clear();
-
-	update_scout_path(scout, map);
+	m_scout_not_assigned_paths.clear();
+	m_scout_assigned_paths.clear();
 
 	// halt temporary scouts
 	for (auto& u : m_scouts)
 		for (auto it_scouts = m_scouts.begin(); it_scouts != m_scouts.end(); it_scouts = it_scouts)
 
 		{
-			if ((*it_scouts).at_final_dest())
-			{
-				map->set_task((*it_scouts).get_scout(), IDLE);
-				it_scouts = m_scouts.erase(it_scouts);
-			}
-			else it_scouts++;
+			(*it_scouts).get_scout()->stop();
+			//if (Unit_Mapping_Debugging)map->print();
+			map->set_task((*it_scouts).get_scout(), IDLE); //Exception thrown: read access violation.
+			it_scouts = m_scouts.erase(it_scouts);
+			// if we located the enemy base we don't need any scouts atm
 		}
-
+	if (Scout_Debugging) print(); //this should all be cleared
 	Phase = Scouting_phases::E_BASE_SIGHTED;
 }
 
-void Scouting::update_scout_path(Scout_Interface* scout, Unit_Mapping* map)
+void Scouting::update_scout_path(Scout_Interface* scout, shared_ptr< Unit_Mapping> map)
 {
 	if (Scout_Debugging) std::cout << "Scouting::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
 
@@ -296,15 +283,27 @@ void Scouting::update_scout_path(Scout_Interface* scout, Unit_Mapping* map)
 	 * ->NO: (we have scouted this route)
 	 * clear and delete the scout form our scoutingunitvector and make IDLE
 	 */
-
-	if (!m_scout_assigned_paths.empty())
+	if (scout->is_at_final_dest()) // the scout is at the end of its path we don't need him as a scout
 	{
-		vector<BWAPI::Position>  path = closest_path(scout->get_scout());
+		for (auto it = m_scouts.begin(); it != m_scouts.end(); it = it)//overload would be prettier but is problematic
+		{
+			if (scout->get_scout()->getID() == it->get_scout()->getID()) it = m_scouts.erase(it);
+			else it++;
+		}
+		return;
+	}
+
+	if (!m_scout_not_assigned_paths.empty())
+	{ //originally this worked with find closes path
+		vector<BWAPI::Position>  path = (*m_scout_not_assigned_paths.begin());
 		scout->set_dest_path_stupidly(path);
-		m_scout_assigned_paths.pop_back();
+		m_scout_not_assigned_paths.erase(m_scout_not_assigned_paths.begin());
+		m_scout_assigned_paths.push_back(path);
 	}
 	else { //there are no more paths to scout
-		map->set_task(scout->get_scout(), IDLE);
+		//if (Unit_Mapping_Debugging)map->print();
+		map->set_task(scout->get_scout(), IDLE); //Exception thrown: read access violation.
+
 		for (auto it = m_scouts.begin(); it != m_scouts.end(); it = it)//overload would be prettier but is problematic
 		{
 			if (scout->get_scout()->getID() == it->get_scout()->getID()) it = m_scouts.erase(it);
@@ -313,7 +312,7 @@ void Scouting::update_scout_path(Scout_Interface* scout, Unit_Mapping* map)
 	}
 }
 
-void Scouting::add_scout(Unit_Mapping* map)
+void Scouting::add_scout(shared_ptr< Unit_Mapping> map)
 {/* if there is a remaining path in m_scout_not_assigned_paths :
 	* let Scoutinterface create a new interface. Scoutinterface will:
 	* -> find a unit near a path and make that unit a scout(handled by Scoutinterface)
@@ -325,7 +324,8 @@ void Scouting::add_scout(Unit_Mapping* map)
 	if (!m_scout_not_assigned_paths.empty()) // if there are paths that have no scout
 	{
 		vector < BWAPI::Position> path = m_scout_not_assigned_paths.front();
-		m_scout_not_assigned_paths.pop_back();
+		m_scout_not_assigned_paths.erase(m_scout_not_assigned_paths.begin());
+		//if (Unit_Mapping_Debugging)map->print();
 		m_scouts.push_back(Scout_Interface(path, map)); // then this
 		m_scout_assigned_paths.push_back(path);
 	}

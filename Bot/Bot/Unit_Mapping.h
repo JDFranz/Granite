@@ -1,6 +1,7 @@
 #pragma once
 #include <BWAPI.h>
 #include <Tools.h>
+#include <memory>
 
 const  bool Unit_Mapping_Debugging = true;
 
@@ -13,6 +14,8 @@ enum buildings {
 
 class Unit_Mapping {
 public:
+	//Unit_Mapping& operator=(Unit_Mapping&) = delete;
+	//Unit_Mapping(Unit_Mapping&) = delete;
 
 	BWAPI::UnitType  Unit_Mapping::get_build_type();
 	BWAPI::Position Unit_Mapping::get_build_loc();
@@ -22,6 +25,7 @@ public:
 	//Counting  Stuff../
 	Unit_Mapping();
 	~Unit_Mapping();
+	void print();
 	void Unit_Mapping::add_to_count(BWAPI::Unit u);
 	void Unit_Mapping::remove_from_count(BWAPI::Unit u, bool warping);
 	int Unit_Mapping::g_count(BWAPI::UnitType u);//granite
@@ -42,7 +46,7 @@ public:
 	void Unit_Mapping::w_add_enemy_ID(BWAPI::Unit u);
 	void Unit_Mapping::w_del_enemy_ID(BWAPI::Unit u);
 
-	int Unit_Mapping::get_task(BWAPI::Unit u);
+	const int Unit_Mapping::get_task(BWAPI::Unit u);
 	void Unit_Mapping::set_task(BWAPI::Unit u, enum worker_detail task);
 
 	int Unit_Mapping::get_unit_shp(BWAPI::Unit u);
@@ -77,7 +81,8 @@ private:// ../
 	};
 
 	BWAPI::Unitset e_warp;
-	std::map<BWAPI::Unit, enum worker_detail> worker_task;
+	std::map<int, enum worker_detail> worker_task;// int is a unit->getID()
+	std::list<std::pair<int, enum worker_detail>> worker_tasks_list;
 	std::map<int, bool> enemy_units;
 	std::map<int, bool> w_enemy_units;
 	BWAPI::Position enemy_base;

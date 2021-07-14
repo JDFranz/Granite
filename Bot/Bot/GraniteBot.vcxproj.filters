@@ -79,6 +79,9 @@
     <ClInclude Include="Mine_Interface.h">
       <Filter>GlobalManager\Economy</Filter>
     </ClInclude>
+    <ClInclude Include="RefreshViolation.hpp">
+      <Filter>Other</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="GraniteBot">

@@ -22,6 +22,7 @@
     <ClInclude Include="..\src\Tools.h" />
     <ClInclude Include="EconomyManager.h" />
     <ClInclude Include="Mine_Interface.h" />
+    <ClInclude Include="RefreshViolation.hpp" />
     <ClInclude Include="Scouting.h" />
     <ClInclude Include="ScoutManager.h" />
     <ClInclude Include="Scout_Interface.h" />

@@ -1,26 +1,43 @@
 #include <BWAPI.h>
 #include "Unit_Mapping.h"
 #include <fstream>
+#include <memory>
+#include <memory>
 #include <string>
+#include "RefreshViolation.hpp"
 
 using namespace BWAPI;
 using namespace Filter;
 
-// Constructor../
 Unit_Mapping::Unit_Mapping()
 {
 	if (Unit_Mapping_Debugging) std::cout << "Unit_Mapping::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
-
 	set_start_count();
-	//set_build_list();
-}//..
+	set_build_list();
+}
+
 Unit_Mapping::~Unit_Mapping()
 {
 	if (Unit_Mapping_Debugging) std::cout << "Unit_Mapping::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
 }
 
-// Initializers
-// Set Count ../
+void Unit_Mapping::print()
+{
+	if (Unit_Mapping_Debugging) std::cout << "Unit_Mapping::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
+
+	using namespace std;
+	cout << "|||||||||Unit_Mapping|||||||||||||||||||||||||||||||||||" << endl;
+	cout << "Our Worker Units and Tasks" << endl;
+
+	for (auto item : worker_tasks_list)
+	{
+		cout << "|WorkerID: " << item.first << "|Task: " << item.second << endl;
+	}
+	cout << "e_base_located" << endl;
+
+	cout << "|||||||||||||||||||||||||||||||||||||||||||||||||||||||" << endl;
+}
+
 void Unit_Mapping::set_start_count()
 {
 	if (Unit_Mapping_Debugging) std::cout << "Unit_Mapping::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
@@ -451,6 +468,8 @@ int Unit_Mapping::e_total_count(BWAPI::UnitType u)// ../
 
 int Unit_Mapping::e_warping_count(BWAPI::UnitType u)// ../
 {
+	if (Unit_Mapping_Debugging) std::cout << "Unit_Mapping::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
+
 	return e_warp_count[u];
 }//..
 
@@ -500,6 +519,8 @@ bool Unit_Mapping::w_enemy_mapped(BWAPI::Unit u)
 }
 void Unit_Mapping::w_add_enemy_ID(BWAPI::Unit u)
 {
+	if (Unit_Mapping_Debugging) std::cout << "Unit_Mapping::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
+
 	w_enemy_units[u->getID()] = true;
 }
 void Unit_Mapping::w_del_enemy_ID(BWAPI::Unit u)
@@ -508,23 +529,52 @@ void Unit_Mapping::w_del_enemy_ID(BWAPI::Unit u)
 
 	w_enemy_units[u->getID()] = false;
 }
-int Unit_Mapping::get_task(BWAPI::Unit u)
+const int Unit_Mapping::get_task(BWAPI::Unit u)
 {
 	if (Unit_Mapping_Debugging) std::cout << "Unit_Mapping::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
 
-	if (!u)
-		return -1;
-	if (u->getType().isWorker())
-		return worker_task[u];
-	return -1;
+	for (auto pair : worker_tasks_list)
+	{
+		if (pair.first == u->getID())
+		{
+			return pair.second;
+		}
+	}
+
+	// try
+	// {
+	// 	if (!u) return -1;
+	// 	if (u->getType().isWorker()) return worker_task[u->getID()];
+	// 	return -1;
+	// }
+	// catch (const std::exception& ex)
+	// {
+	// 	throw RefreshViolation();
+	// }
 }
 void Unit_Mapping::set_task(BWAPI::Unit u, enum worker_detail task)
 {
 	if (Unit_Mapping_Debugging) std::cout << "Unit_Mapping::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
-	if (!u)
-		return;
-	if (u->getType().isWorker())
-		worker_task[u] = task;
+	//throw RefreshViolation(u, task);
+	for (auto pair : worker_tasks_list)
+	{
+		if (pair.first == u->getID())
+		{
+			pair.second = task;
+			return;
+		}
+	}
+	worker_tasks_list.push_back(std::pair<int, enum worker_detail>(u->getID(), task));
+	// try
+	// {
+	// 	if (!u)
+	// 		return;
+	// 	worker_task[u->getID()] = task;
+	// }
+	// catch (const std::exception& ex)
+	// {
+	// 	throw RefreshViolation();
+	// }
 }
 
 int Unit_Mapping::get_unit_shp(BWAPI::Unit u)
@@ -554,9 +604,11 @@ int Unit_Mapping::last_frame_attacked(BWAPI::Unit u)
 }
 void Unit_Mapping::set_under_fire(BWAPI::Unit u)
 {
+	if (Unit_Mapping_Debugging) std::cout << "Unit_Mapping::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
+
 	under_fire[u].is = true;
 	under_fire[u].last_frame = Broodwar->getFrameCount();
-	worker_task[u] = EVADE;
+	worker_task[u->getID()] = EVADE;
 	set_unit_shp(u);
 }
 
@@ -565,7 +617,7 @@ void Unit_Mapping::set_not_under_fire(BWAPI::Unit u)
 	if (Unit_Mapping_Debugging) std::cout << "Unit_Mapping::" << __func__ << std::endl;//for debugging purposes change in "Debugger.hpp"
 
 	under_fire[u].is = false;
-	worker_task[u] = IDLE;
+	worker_task[u->getID()] = IDLE;
 }
 void Unit_Mapping::clear_worker_engage(BWAPI::Unitset enemy)
 {
@@ -575,7 +627,7 @@ void Unit_Mapping::clear_worker_engage(BWAPI::Unitset enemy)
 	{
 		for (auto& y : worker_engage[u])
 		{
-			worker_task[y] = IDLE;
+			worker_task[y->getID()] = IDLE;
 			y->stop();
 		}
 		worker_engage[u].clear();
@@ -594,7 +646,7 @@ void Unit_Mapping::set_worker_engage(BWAPI::Unitset enemy,
 			to_add = closest_attacker(u, worker);
 			if (to_add)
 			{
-				worker_task[to_add] = ATTACK;
+				worker_task[to_add->getID()] = ATTACK;
 				worker_engage[u].insert(to_add);
 			}
 			else { return; }
@@ -617,9 +669,9 @@ BWAPI::Unit Unit_Mapping::closest_attacker(BWAPI::Unit enemy,
 
 	for (auto& y : worker)
 	{
-		if (worker_task[y] == ATTACK ||
-			worker_task[y] == BUILD ||
-			worker_task[y] == EVADE)
+		if (worker_task[y->getID()] == ATTACK ||
+			worker_task[y->getID()] == BUILD ||
+			worker_task[y->getID()] == EVADE)
 			continue;
 		distance = enemy->getDistance(y);
 		if (distance < closest_dist)

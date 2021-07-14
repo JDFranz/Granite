@@ -4,6 +4,7 @@
 #include "BWAPI.h"
 #include "Scouting.h"
 #include <vector>
+#include "RefreshViolation.hpp"
 
 class Unit_Mapping;
 class EconomyManager;
@@ -12,7 +13,7 @@ class GraniteBot
 {
 	MapTools m_mapTools;
 	StarDraftMap m_map;
-	Unit_Mapping& m_unit_mapping;
+	shared_ptr< Unit_Mapping>  m_unit_mapping;
 	Scouting m_scouting;
 	EconomyManager& ecoman;
 
